@@ -2,7 +2,6 @@ __author__ = 'Martin'
 from sklearn.cross_validation import train_test_split
 from matplotlib import pyplot as plt
 import sklearn.metrics
-from ELMimplementacije.PythonELM import elm, random_layer
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score
 from time import time
 import numpy as np

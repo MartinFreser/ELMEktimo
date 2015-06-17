@@ -1,6 +1,6 @@
 __author__ = 'Martin'
-from ELMimplementacije.PythonELM.elm import ELMClassifier, GenELMClassifier, ELMRegressor, GenELMRegressor
-from ELMimplementacije.PythonELM.random_layer import RandomLayer, RBFRandomLayer, GRBFRandomLayer, MLPRandomLayer
+from ELMImplementacije.PythonELM.elm import GenELMClassifier
+from ELMImplementacije.PythonELM.random_layer import RandomLayer
 import numpy as np
 import Helpers
 import pickle
