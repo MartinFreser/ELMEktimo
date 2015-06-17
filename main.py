@@ -72,11 +72,12 @@ def main4():
     X, Y = readData(trainFtrFile="data/trainFtrExtended_200f.csv",
                     trainClsFile= "data/trainClsExtended.csv", deleteFirstNFeatures=2)
     x_train, x_test, y_train, y_test = splitTrainTest(X, Y, test_size=0.1)
+    print(np.mean(y_test))
 
-    n_hidden = 400
+    n_hidden = 100
     elmc = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = n_hidden, activation_func = 'multiquadric', alpha=1))
-    # elmc1 = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = n_hidden, activation_func = 'multiquadric', alpha=0.5))
-    # elmc2 = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = n_hidden, activation_func = 'multiquadric', alpha=0))
+    elmc1 = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = n_hidden, activation_func = 'multiquadric', alpha=0.5))
+    elmc2 = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = n_hidden, activation_func = 'multiquadric', alpha=0))
     rf = sklearn.ensemble.RandomForestClassifier(n_estimators = 1000, n_jobs = 2)
     # baggedElmc = BaggingClassifier(elmc, n_estimators=60, bootstrap= False, max_samples=0.6, max_features=0.6)
     adaTree = AdaBoostClassifier(n_estimators=30)
@@ -101,11 +102,11 @@ def main4():
     elmc.fit(x_train,y_train)
     handles.append(dviganjeDecilov(x_test,y_test,elmc, "GenElmc1")[1])
 
-    elmc1.fit(x_train,y_train)
-    handles.append(dviganjeDecilov(x_test,y_test,elmc1, "GenElmc0.5")[1])
-
-    elmc2.fit(x_train,y_train)
-    handles.append(dviganjeDecilov(x_test,y_test,elmc2, "GenElmc20")[1])
+    # elmc1.fit(x_train,y_train)
+    # handles.append(dviganjeDecilov(x_test,y_test,elmc1, "GenElmc0.5")[1])
+    #
+    # elmc2.fit(x_train,y_train)
+    # handles.append(dviganjeDecilov(x_test,y_test,elmc2, "GenElmc20")[1])
 
     rf.fit(x_train,y_train)
     handles.append(dviganjeDecilov(x_test,y_test,rf,"RandomForest")[1])
@@ -169,20 +170,22 @@ def main5():
 
 def main9():
     #zgradi najljubse modele
-    X,Y = readData()
-    rnn = joblib.load("transformers/RemoveNonRanked/RemoveNonRanked.p")
-    X = rnn.transform(X)
+    # X,Y = readData()
+    # rnn = joblib.load("transformers/RemoveNonRanked/RemoveNonRanked.p")
+    # X = rnn.transform(X)
+    X, Y = readData(trainFtrFile="data/trainFtrExtended_200f.csv",
+                    trainClsFile= "data/trainClsExtended.csv", deleteFirstNFeatures=2)
     t = len(X)*0.9
     # X, Y = X[:t], Y[:t]
 
-    elmc = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 400, activation_func = 'multiquadric', alpha=1))
+    elmc = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 200, activation_func = 'multiquadric', alpha=0.9))
     elmc.fit(X,Y)
-    shraniModel(elmc,"models/elm_400/elm_400.p")
+    shraniModel(elmc,"models/elm_400Extended/elm_400Extended.p")
 
     elmc = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 50, activation_func = 'multiquadric', alpha=0.8))
     baggedElmc = Bagging(elmc,n_estimators=50,ratioCutOffEstimators=0.5)
     baggedElmc.fit(X,Y)
-    shraniModel(elmc,"models/baggedElm_50_50_0.5/baggedElm_50_50_0.5.p")
+    shraniModel(elmc,"models/baggedElm_50_50_0.5Extended/baggedElm_50_50_0.5Extended.p")
 
 def main8(modelFile, writeFile):
     #PredictOstanekTest
@@ -200,51 +203,23 @@ def main8(modelFile, writeFile):
                 preds = cls.predict_proba(test_x[j:j+stp])[:,1]
                 [fw.write(str(p)+"\n") for p in preds]
 
-def writeModelPreds(modelFile, modelToWrite, dataCsv):
-    #za backtest
-    #Predict fullTest
-    cls = joblib.load(modelFile)
-    rnn = joblib.load("transformers/RemoveNonRanked/RemoveNonRanked.p")
-    stp = 4000
-    with open(modelToWrite,"w") as fw:
-        with open(dataCsv,"r") as f:
-            f.readline()#dummy read for header
-            test_x = []
-            tickers = []
-            i=0
-            for line in f:
-                test_x.append(line.replace("\"", "").strip().split(",")[2:])#izbrisemo ticker in datum
-                tickers.append(line.replace("\"", "").strip().split(",")[:2])
-                if(len(test_x)>stp):
-                    print (i,976800/stp)
-                    i+=1
-                    test_x = np.array(test_x).astype(float)
-                    test_x = rnn.transform(test_x)
-                    preds = cls.predict_proba(test_x)[:,1]
-                    [fw.write("%s,%s,%s\n" %(tick[0], tick[1], str(p))) for p, tick in zip(preds, tickers)]
-                    test_x = []
-                    tickers = []
-            if(len(test_x) != 0):
-                test_x = np.array(test_x).astype(float)
-                test_x = rnn.transform(test_x)
-                preds = cls.predict_proba(test_x)[:,1]
-                [fw.write("%s,%s,%s\n" %(preds[0], preds[1], str(p))) for p in zip(preds, tickers)]
-                test_x = []
-                tickers = [] #tega ne bi rabili narediti
+
 def main10():
-    model = "elm_400"
-    csv = "//./Z:/Podatki/Prediction datasets/ostanekTrainFeaturesWithTickers.csv"
+    model = "elm_400Extended"
+    # csv = "//./Z:/Podatki/Prediction datasets/ostanekTrainFeaturesWithTickers.csv"
+    csv = "//./Z:/spaceextension/testFtrExtended_200f.csv"
     # csv = "//./Z:/Podatki/Prediction datasets/fullTestFeatures.csv"#"data/fullTestFeaturesMaliKos.csv"
     # csv = "data/testFtrWithTicker.csv"
 
-    toWrite = "models/"+model+"/ostanekTrainFeaturesWithTickers.csv"
+    toWrite = "models/"+model+"/testFtrExtended_200fPredictions.csv"
     # toWrite = "models/"+model+"/smallTestResponse.csv"
     # toWrite = "models/"+model+"/predictionsFullTest2.csv"
     # main8("models/"+model+"/"+model+".p", "models/"+model+"/predictionsOstanek.csv", )
     Helpers.writeModelPreds("models/"+model+"/"+model+".p",
            toWrite,
            csv,
-           hasTicker=True)
+           hasTicker=True,
+           appendTicker=False)
 
 def main6():
     #Cross validation iskanje parametrov za Bagging elmcje

@@ -153,11 +153,11 @@ def shraniModel(cls, file):
     joblib.dump(cls,file)
     print("shranil v ", file)
 
-def writeModelPreds(modelFile, modelToWrite, dataCsv, stp = 10000, hasTicker = True):
+def writeModelPreds(modelFile, modelToWrite, dataCsv, stp = 10000, hasTicker = True, appendTicker = False, transformers = None):
     #za backtest
     #Predict fullTest
     cls = joblib.load(modelFile)
-    rnn = joblib.load("transformers/RemoveNonRanked/RemoveNonRanked.p")
+    # rnn = joblib.load("transformers/RemoveNonRanked/RemoveNonRanked.p")
     test_x = []
     tickers = []
     lines = 0
@@ -174,20 +174,24 @@ def writeModelPreds(modelFile, modelToWrite, dataCsv, stp = 10000, hasTicker = T
                 if(len(test_x)>stp):
                     print (i,976800/stp)
                     i+=1
-                    test_x = np.array(test_x).astype(float)
-                    test_x = rnn.transform(test_x)
+                    test_x = np.array(test_x).astype(float) + 1 #hardcoded, need to be removed!!!
+                    if transformers:
+                        for t in transformers:
+                            test_x = t.transform(test_x)
                     preds = cls.predict_proba(test_x)[:,1]
-                    if hasTicker:
+                    if hasTicker and appendTicker:
                         [fw.write("%s,%s,%s\n" %(tick[0], tick[1], str(p))) for p, tick in zip(preds, tickers)]
                     else:
                         [fw.write("%s\n" %str(p)) for p in preds]
                     test_x = []
                     tickers = []
         if(len(test_x) != 0):
-            test_x = np.array(test_x).astype(float)
-            test_x = rnn.transform(test_x)
+            test_x = np.array(test_x).astype(float) + 1 #hardcoded, need to be removed
+            if transformers:
+                for t in transformers:
+                    test_x = t.transform(test_x)
             preds = cls.predict_proba(test_x)[:,1]
-            if hasTicker:
+            if hasTicker and appendTicker:
                 [fw.write("%s,%s,%s\n" %(tick[0], tick[1], str(p))) for p, tick in zip(preds, tickers)]
             else:
                 [fw.write("%s\n" %str(p)) for p in preds]
