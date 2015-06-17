@@ -1,9 +1,8 @@
 __author__ = 'Martin'
 import pandas
 from matplotlib import pyplot as plt
-from ELMimplementacije.PythonELM.elm import ELMClassifier, GenELMClassifier, ELMRegressor, GenELMRegressor
-from ELMimplementacije.PythonELM.random_layer import RandomLayer, RBFRandomLayer, GRBFRandomLayer, MLPRandomLayer
-from time import time
+from ELMImplementacije.PythonELM.elm import GenELMClassifier
+from ELMImplementacije.PythonELM.random_layer import RandomLayer
 import numpy as np
 from Helpers import readData, dviganjeDecilov, dviganjeDecilovKkrat, splitTrainTest, shraniModel
 import ELMMethod, BaggingMethod
@@ -68,9 +67,12 @@ def main3():
 def main4():
     #na enem algoritmu dvigujem decil na testni mnozici in gledamo precision
     # X, Y = readData()
-
-    X, Y = readData(trainFtrFile="data/trainFtrExtended_200f.csv",
-                    trainClsFile= "data/trainClsExtended.csv", deleteFirstNFeatures=2)
+    trainFtrFile = "//./Z:/spaceextension/test10k/csv/trainFtrExtended_200f_90.csv"
+    trainClsFile = "//./Z:/spaceextension/test10k/csv/trainClsExtended_90.csv"
+    X, Y = readData(trainFtrFile=trainFtrFile,
+                    trainClsFile= trainClsFile,
+                    deleteFirstNFeatures=2,
+                    firstNSamples=1000)
     x_train, x_test, y_train, y_test = splitTrainTest(X, Y, test_size=0.1)
     print(np.mean(y_test))
 
@@ -226,8 +228,12 @@ def main6():
     X,Y = readData()
     elmc = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 100, activation_func = 'multiquadric', alpha=1.0))
     BaggingMethod.BaggingMethod(elmc).poisciParametre(X,Y)
-
+def bla():
+    with open("//./Z:/krneki.txt") as f:
+        for line in f:
+            print(line)
 if __name__ == "__main__":
+    # bla()
     main4()
     # main2LoadResults()
 
