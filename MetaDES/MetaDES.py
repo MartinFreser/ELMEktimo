@@ -17,6 +17,7 @@ class MetaDES():
         self.competenceTresshold = competenceTresshold
         self.metric = metric
         self.printing = printing
+        self.nnAlgo = "kd_tree"
     def fit(self, XMeta, YMeta, YCaMeta, folder = "data/dataForMeta/"): #X ... features, y... trueValue, yC ... values predicted by classifier
         wholeTime, timeForRegion = 0,0
         start = time.time()
