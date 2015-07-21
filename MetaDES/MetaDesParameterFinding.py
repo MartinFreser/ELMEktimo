@@ -13,6 +13,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.externals import joblib
 
 from Helpers import pickleListAppend2
+import pickle
 
 from sklearn.ensemble import RandomForestClassifier
 from testingMetaDes import readForMeta2, readClsResponse
@@ -91,3 +92,7 @@ def plotClassifiersAndSaveResult(YTest, YCaTest, YMetaResponse,graphName, folder
     print("Result of:"+graphName+":")
     print(str(result))
     pickleListAppend2([result,graphName], folder+"parameterResults.p") #zapisemo rezultat
+
+def loadResults(file = "data/dataForMeta/ostanek/parameterResults.p"):
+    list = pickle.load(open(file,"rb"))
+    print(list)
