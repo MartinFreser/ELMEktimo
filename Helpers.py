@@ -10,6 +10,7 @@ from sklearn import cross_validation
 import pickle
 import os.path
 from sklearn.externals import joblib
+import random
 
 np.set_printoptions(precision=3)
 
@@ -80,6 +81,13 @@ def readData(firstNSamples=0, trainFtrFile = "data/trainFtr.csv", trainClsFile =
 
     return train_set_x[:,deleteFirstNFeatures:].astype(float), train_set_y.T[0].astype(float)
 
+def readClsResponse(file):
+    res = []
+    with open(file) as f:
+        for line in f:
+            res.append(float(line.strip()))
+    return np.array(res).astype(float)
+
 def metricWithRawData(classPredicts, rawPredicts, trueY, tresshold= 0.5, metricFunction = accuracy_score):
     if(len(classPredicts) != len(trueY)): raise Exception("Lengts of vectors classPredicts, rawPredicts, trueY should be"
                                                           "the same")
@@ -144,11 +152,20 @@ def pickleListAppend(object, file):
         obj = pickle.load(open(file,"rb"))
         pickle.dump(obj+object,open(file,"wb"))
 
+def pickleListAppend2(object, file):
+    if(not os.path.isfile(file)):
+        list = [object]
+        pickle.dump(list,open(file,"wb"))
+    else:
+        list = pickle.load(open(file,"rb"))
+        list.append(object)
+        pickle.dump(list,open(file,"wb"))
+
 def deleteFile(file):
     if(os.path.exists(file)): os.remove(file)
 
 def shraniModel(cls, file):
-    os.makedirs("/".join(file.split("/")[:-1]))
+    if(not os.path.exists("/".join(file.split("/")[:-1]))): os.makedirs("/".join(file.split("/")[:-1]))
     joblib.dump(cls,file)
     print("shranil v ", file)
 
@@ -197,3 +214,12 @@ def writeModelPreds(modelFile, modelToWrite, dataCsv, stp = 10000, hasTicker = T
             test_x = []
             tickers = [] #tega ne bi rabili narediti
     print("we had %d lines" %lines)
+
+def meanAndStd(x):
+    mean = np.mean(x)
+    std = np.sqrt((np.sum((x-mean)**2)/len(x)))
+
+    return mean, std
+
+
+
