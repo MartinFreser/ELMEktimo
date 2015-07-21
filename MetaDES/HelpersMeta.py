@@ -4,9 +4,15 @@ from sklearn.metrics import accuracy_score, precision_score
 from matplotlib import pyplot as plt
 from Helpers import metricWithRawDataAboveDecil
 import Helpers
-def DOC(x): #degree of consensus
-    doc = len(x[x == x[0]])/len(x)
-    return max(doc,1-doc)
+def DOC(x, mode = 0): #degree of consensus
+    if(mode == 0):
+        doc = len(x[x == x[0]])/len(x)
+        return max(doc,1-doc)
+    elif(mode == 1):
+        t1 = len(x[x == x[0]])
+        t2 = len(x)-t1
+        delta = abs(t1-t2)
+        return delta/len(x)
 def findRegion(distFrom, x, K,method = 'normalRegion',  distFunc = None):
     if distFunc is None: distFunc = lambda x1,x2: np.linalg.norm(x1-x2, axis=1) #euclidian distance
     dist = [(d, i) for i, d in enumerate(distFunc(x,distFrom))]

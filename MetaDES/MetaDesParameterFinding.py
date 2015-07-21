@@ -35,7 +35,7 @@ def findParameters():
 
     metaClassifiers = [lr]
     hCs = [1.0,0.8,0.6]
-    nrNeigh = [50,300,1000]
+    nrNeigh = [300,50,1000]
     modes = ["weightedAll", "weighted", "mean"]
     metrics = ["chebyshev", "l2"]# BallTree.valid_metrics
     competenceTressholds = [0.4,0.5,0.6]
@@ -47,8 +47,8 @@ def findParameters():
     YCaSel = readClsResponse("Sel", folder = folder)
     YCaTest = readClsResponse("Test", folder = folder)
 
-    for hC in hCs:
-        for nrN in nrNeigh:
+    for nrN in nrNeigh:
+        for hC in hCs:
             for mode in modes:
                 for metric in metrics:
                     try:

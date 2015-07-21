@@ -34,7 +34,7 @@ class MetaDES():
             # for i in range(2000):
                 x = XMeta[i]
                 if(i%1000 == 0): print("Training examples covered: %d/%d" %(i, len(XMeta)))
-                doc = DOC(np.round(YCaMeta[i]))#degree of consensus, Morda premislit, kako to drugace dolocit
+                doc = DOC(np.round(YCaMeta[i]), mode=1)#degree of consensus, Morda premislit, kako to drugace dolocit
                 if(doc <= self.hC): #we let in instances, where classifiers have smaller consensus than tresshold
                     reg, opReg = {},{}
                     start2 = time.time()
