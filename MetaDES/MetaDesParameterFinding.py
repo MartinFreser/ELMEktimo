@@ -48,6 +48,8 @@ def findParameters():
     YCaSel = readClsResponse("Sel", folder = folder)
     YCaTest = readClsResponse("Test", folder = folder)
 
+    nrOfTrials = 0
+    allTrials = len(nrNeigh)*len(hCs)*len(modes)*len(metrics)*len(metaClassifiers)
     for nrN in nrNeigh:
         for hC in hCs:
             for mode in modes:
@@ -66,6 +68,8 @@ def findParameters():
                                    "_competence"+str(metaDes.competenceTresshold)+\
                                    "_cls"+metaDes.metaCls.name+\
                                     "_metric"+metaDes.metric
+                            nrOfTrials += 1
+                            print("Fitting %d/%d trial" %(nrOfTrials,allTrials))
                             metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
                             Helpers.shraniModel(metaDes,folder+"models/"+name+"/"+name) #we save fitted model
                             responseTest = metaDes.predict_proba(XTest, YCaTest, XSel, YSel, YCaSel)[:,1]
@@ -73,6 +77,10 @@ def findParameters():
 
                             plotClassifiersAndSaveResult(YTest,YCaTest, responseTest, name, folder=folder) #we save figure and save results
                     except Exception as e:
+                        allTrials -= 1
+                        with open(folder+"error.log", "a") as fw:
+                            fw.write("We were executing "+name+"\n")
+                            fw.write(str(e)+"\n\n\n***************************************")
                         print(str(e))
 
 
