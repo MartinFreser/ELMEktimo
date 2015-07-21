@@ -95,4 +95,5 @@ def plotClassifiersAndSaveResult(YTest, YCaTest, YMetaResponse,graphName, folder
 
 def loadResults(file = "data/dataForMeta/ostanek/parameterResults.p"):
     list = pickle.load(open(file,"rb"))
-    print(list)
+    list.sort(key = lambda x: x[0][5], reverse=True)
+    print("\n".join(map(str,list)))
