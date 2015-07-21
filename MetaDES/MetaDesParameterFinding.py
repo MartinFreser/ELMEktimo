@@ -16,6 +16,7 @@ from Helpers import pickleListAppend2
 
 from sklearn.ensemble import RandomForestClassifier
 from testingMetaDes import readForMeta2, readClsResponse
+from sklearn.neighbors.ball_tree import BallTree
 
 def findParameters():
     #we modify this function a little bit, preparing it for work with OstanekTrain
@@ -36,7 +37,7 @@ def findParameters():
     hCs = [1.0,0.8,0.6]
     nrNeigh = [50,300,1000]
     modes = ["weightedAll", "weighted", "mean"]
-    metrics = ["l2", "cosine"]
+    metrics = ["chebyshev", "l2"]# BallTree.valid_metrics
     competenceTressholds = [0.4,0.5,0.6]
 
     # metaDes = MetaDES(0.8,1000, 50, lr, competenceTresshold=0.5, mode="weightedAll")
@@ -50,25 +51,28 @@ def findParameters():
         for nrN in nrNeigh:
             for mode in modes:
                 for metric in metrics:
-                    metaDes = MetaDES(hC,nrN, nrN, lr, competenceTresshold=0.5, mode=mode, metric=metric)
-                    print("calculating meta features...")
-                    metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
+                    try:
+                        metaDes = MetaDES(hC,nrN, nrN, lr, competenceTresshold=0.5, mode=mode, metric=metric)
+                        print("calculating meta features...")
+                        metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
 
-                    for cls in metaClassifiers:
-                        metaDes.metaCls = cls
-                        name = "metaDes_hC"+str(metaDes.hC)+\
-                               "_K"+str(metaDes.K)+\
-                               "_Kp"+str(metaDes.Kp)+\
-                               "_mode"+metaDes.mode+\
-                               "_competence"+str(metaDes.competenceTresshold)+\
-                               "_cls"+metaDes.metaCls.name+\
-                                "_metric"+metaDes.metric
-                        metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
-                        Helpers.shraniModel(metaDes,folder+name+"/"+name) #we save fitted model
-                        responseTest = metaDes.predict_proba(XTest, YCaTest, XSel, YSel, YCaSel)[:,1]
+                        for cls in metaClassifiers:
+                            metaDes.metaCls = cls
+                            name = "metaDes_hC"+str(metaDes.hC)+\
+                                   "_K"+str(metaDes.K)+\
+                                   "_Kp"+str(metaDes.Kp)+\
+                                   "_mode"+metaDes.mode+\
+                                   "_competence"+str(metaDes.competenceTresshold)+\
+                                   "_cls"+metaDes.metaCls.name+\
+                                    "_metric"+metaDes.metric
+                            metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
+                            Helpers.shraniModel(metaDes,folder+"models/"+name+"/"+name) #we save fitted model
+                            responseTest = metaDes.predict_proba(XTest, YCaTest, XSel, YSel, YCaSel)[:,1]
 
 
-                        plotClassifiersAndSaveResult(YTest,YCaTest, responseTest, name, folder=folder) #we save figure and save results
+                            plotClassifiersAndSaveResult(YTest,YCaTest, responseTest, name, folder=folder) #we save figure and save results
+                    except Exception as e:
+                        print(str(e))
 
 
 def plotClassifiersAndSaveResult(YTest, YCaTest, YMetaResponse,graphName, folder = "data/dataForMeta/"):
