@@ -1,8 +1,8 @@
 __author__ = 'Martin'
 import Helpers
 import numpy as np
-from ELMimplementacije.PythonELM.elm import GenELMClassifier
-from ELMimplementacije.PythonELM.random_layer import RandomLayer
+# from ELMimplementacije.PythonELM.elm import GenELMClassifier
+# from ELMimplementacije.PythonELM.random_layer import RandomLayer
 import os
 from MetaDES.MetaDES import MetaDES
 from sklearn.tree import DecisionTreeClassifier
