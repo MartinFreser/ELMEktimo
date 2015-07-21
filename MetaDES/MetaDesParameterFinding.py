@@ -34,10 +34,10 @@ def findParameters():
     lr.name= "lr"
 
     metaClassifiers = [lr]
-    hCs = [1.0,0.8,0.6]
+    hCs = [1.0,0.8,0.6, 0.5,0.4]
     nrNeigh = [300,50,1000]
     modes = ["weightedAll", "weighted", "mean"]
-    metrics = ["chebyshev", "l2"]# BallTree.valid_metrics
+    metrics = BallTree.valid_metrics
     competenceTressholds = [0.4,0.5,0.6]
 
     # metaDes = MetaDES(0.8,1000, 50, lr, competenceTresshold=0.5, mode="weightedAll")
