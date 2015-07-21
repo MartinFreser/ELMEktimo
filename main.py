@@ -1,10 +1,10 @@
 __author__ = 'Martin'
 import pandas
 from matplotlib import pyplot as plt
-from ELMImplementacije.PythonELM.elm import GenELMClassifier
-from ELMImplementacije.PythonELM.random_layer import RandomLayer
+from ELMimplementacije.PythonELM.elm import GenELMClassifier
+from ELMimplementacije.PythonELM.random_layer import RandomLayer
 import numpy as np
-from Helpers import readData, dviganjeDecilov, dviganjeDecilovKkrat, splitTrainTest, shraniModel
+from Helpers import readData, dviganjeDecilov, dviganjeDecilovKkrat, splitTrainTest, shraniModel, readClsResponse
 import ELMMethod, BaggingMethod
 import pickle
 from sklearn.ensemble import BaggingClassifier, AdaBoostClassifier, RandomForestClassifier
@@ -15,6 +15,8 @@ from bagging import Bagging, BaggingUncertain
 from sklearn import cross_validation
 from meanEnsemble import MeanEnsemble
 import Helpers
+import MetaDES.HelpersZaOstanek
+import MetaDES.MetaDesParameterFinding
 import os
 from RemoveNonRankedFeatures import RemoveNonRankedFeatures
 
@@ -66,15 +68,16 @@ def main3():
     print ("adaRf: ", Helpers.cv(X,Y,adaRf))
 def main4():
     #na enem algoritmu dvigujem decil na testni mnozici in gledamo precision
-    # X, Y = readData()
-    trainFtrFile = "//./Z:/spaceextension/test10k/csv/trainFtrExtended_200f_90.csv"
-    trainClsFile = "//./Z:/spaceextension/test10k/csv/trainClsExtended_90.csv"
-    X, Y = readData(trainFtrFile=trainFtrFile,
-                    trainClsFile= trainClsFile,
-                    deleteFirstNFeatures=2,
-                    firstNSamples=1000)
+    X, Y = readData()
+    t = len(X)
+    X,Y = X[:t/2], Y[:t/2]
+    # trainFtrFile = "//./Z:/spaceextension/test10k/csv/trainFtrExtended_200f.csv"
+    # trainClsFile = "//./Z:/spaceextension/test10k/csv/trainClsExtended.csv"
+    # X, Y = readData(trainFtrFile=trainFtrFile,
+    #                 trainClsFile= trainClsFile,
+    #                 deleteFirstNFeatures=2)
     x_train, x_test, y_train, y_test = splitTrainTest(X, Y, test_size=0.1)
-    print(np.mean(y_test))
+    print("Prebral datoteke")
 
     n_hidden = 100
     elmc = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = n_hidden, activation_func = 'multiquadric', alpha=1))
@@ -131,8 +134,8 @@ def main4():
     # handles.append(dviganjeDecilov(X,Y,tree,"tree ",test_size=0.1)[1])
     # handles.append(dviganjeDecilov(X,Y,adaTree,"adaTree ",test_size=0.1)[1])
 
-    adaTree.fit(x_train,y_train)
-    handles.append(dviganjeDecilov(x_test,y_test,adaTree,"adaTree")[1])
+    # adaTree.fit(x_train,y_train)
+    # handles.append(dviganjeDecilov(x_test,y_test,adaTree,"adaTree")[1])
     plt.legend(handles = handles, loc = 2)
 
     plt.show()
@@ -228,12 +231,16 @@ def main6():
     X,Y = readData()
     elmc = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 100, activation_func = 'multiquadric', alpha=1.0))
     BaggingMethod.BaggingMethod(elmc).poisciParametre(X,Y)
+
 def bla():
     with open("//./Z:/krneki.txt") as f:
         for line in f:
             print(line)
 if __name__ == "__main__":
     # bla()
-    main4()
+    # main4()
     # main2LoadResults()
+
+    # MetaDES.HelpersZaOstanek.fullTestProcess()
+    MetaDES.MetaDesParameterFinding.findParameters()
 
