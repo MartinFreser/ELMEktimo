@@ -1,8 +1,8 @@
 __author__ = 'Martin'
 import Helpers
 import numpy as np
-from ELMimplementacije.PythonELM.elm import GenELMClassifier
-from ELMimplementacije.PythonELM.random_layer import RandomLayer
+# from ELMimplementacije.PythonELM.elm import GenELMClassifier
+# from ELMimplementacije.PythonELM.random_layer import RandomLayer
 import os
 from MetaDES.MetaDES import MetaDES
 from sklearn.tree import DecisionTreeClassifier
@@ -28,8 +28,8 @@ def findParameters():
     nb.name="Bayes"
     rf = RandomForestClassifier(n_estimators=50)
     rf.name="rf"
-    elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 100, activation_func = 'multiquadric', alpha=1))
-    elm.name="elm"
+    # elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 100, activation_func = 'multiquadric', alpha=1))
+    # elm.name="elm"
     lr = LogisticRegression()
     lr.name= "lr"
 
