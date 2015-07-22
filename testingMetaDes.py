@@ -14,6 +14,8 @@ from sklearn.externals import joblib
 
 from sklearn.ensemble import RandomForestClassifier
 
+from SoftMaxRegression.softMaxSKLearn import softMaxSklearn
+
 def main1():
     #method for testing MetaDES
     X, Y = Helpers.readData()
@@ -176,15 +178,20 @@ def wholeMetaProcedure2():
     nb = GaussianNB()#meta classifier for metaDes
     rf = RandomForestClassifier(n_estimators=100)
     # elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 20, activation_func = 'multiquadric', alpha=1))
+
+
+    # elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 20, activation_func = 'multiquadric', alpha=1))
+    sm = softMaxSklearn()
     lr = LogisticRegression()
 
-    metaDes = MetaDES(0.8,1000, 50, lr, competenceTresshold=0.5, mode="weightedAll")
+    metaDes = MetaDES(0.8,50, 50, lr, competenceTresshold=0.5, mode="weightedAll", metaClsMode="combined")
 
 
     YCaMeta = readClsResponse("Meta", folder=folder) #we read all classifications for meta dataset
-    metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
+    # metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
     # rf.name = "RandomForest"
-    # metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
+    metaDes.nrOfClassifiers = 11
+    metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
     # metaDes.loadMetaCls()
 
     YCaSel = readClsResponse("Sel", folder = folder)
