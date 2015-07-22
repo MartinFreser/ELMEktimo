@@ -35,10 +35,10 @@ def findParameters():
     lr.name= "lr"
 
     metaClassifiers = [lr]
-    hCs = [1.0,0.8,0.6, 0.5,0.4]
-    nrNeigh = [300,50,1000]
+    hCs = [1.0,0.6, 0.5,0.4]
+    nrNeigh = [300]
     modes = ["weightedAll", "weighted", "mean"]
-    metrics = BallTree.valid_metrics
+    metrics = ["l2", "l1", "mahalanobis", "chebyshev"]#BallTree.valid_metrics
     competenceTressholds = [0.4,0.5,0.6]
 
     # metaDes = MetaDES(0.8,1000, 50, lr, competenceTresshold=0.5, mode="weightedAll")
@@ -103,5 +103,5 @@ def plotClassifiersAndSaveResult(YTest, YCaTest, YMetaResponse,graphName, folder
 
 def loadResults(file = "data/dataForMeta/ostanek/parameterResults.p"):
     list = pickle.load(open(file,"rb"))
-    list.sort(key = lambda x: x[0][5], reverse=True)
+    list.sort(key = lambda x: sum(x[0][2:6]), reverse=True)
     print("\n".join(map(str,list)))

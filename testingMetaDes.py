@@ -175,7 +175,7 @@ def wholeMetaProcedure2():
     # overproduction3(XProd,YProd, XMeta, XSel, XTest) #we generate classifiers and use them for responses
     nb = GaussianNB()#meta classifier for metaDes
     rf = RandomForestClassifier(n_estimators=100)
-    elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 20, activation_func = 'multiquadric', alpha=1))
+    # elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 20, activation_func = 'multiquadric', alpha=1))
     lr = LogisticRegression()
 
     metaDes = MetaDES(0.8,1000, 50, lr, competenceTresshold=0.5, mode="weightedAll")
@@ -203,7 +203,7 @@ def plotClassifiers(folder = "data/dataForMeta/", clsResponse = "MetaDesResponse
     #plots all classifiers, that are stored in data/dataForMeta/classifiers, so we can compare precision with respect to
     #meta classifier
     handles = []
-    YMetaDes = np.loadtxt(folder+clsResponse, delimiter=",")#[:,1]
+    YMetaDes = np.loadtxt(folder+clsResponse, delimiter=",")[:,1]
     YTest = np.loadtxt(folder + "Ytest.csv", delimiter="\n")
     YCaTest = readClsResponse("Test", folder = folder)
     handles.append(dviganjeDecilov(YTest, YMetaDes, "MetaDes", linewidth=4)[1])
@@ -237,6 +237,6 @@ def trainClsForMeta(XProduction, YProduction,XMeta, XSel, XTest, cls):
 if __name__ == "__main__":
     folder = "data/dataForMeta/ostanek/"
     # overproductionProcess()
-    # wholeMetaProcedure2()
-    plotClassifiers(folder = "data/dataForMeta/ostanek/", clsResponse="MetaDesResponse_weighted.csv")
+    wholeMetaProcedure2()
+    # plotClassifiers(folder = "data/dataForMeta/ostanek/", clsResponse="MetaDesResponse_weightedAll.csv")
 
