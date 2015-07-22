@@ -242,5 +242,5 @@ if __name__ == "__main__":
     # main2LoadResults()
 
     # MetaDES.HelpersZaOstanek.fullTestProcess()
-    MetaDES.MetaDesParameterFinding.findParameters()
+    MetaDES.MetaDesParameterFinding.loadResults()
 

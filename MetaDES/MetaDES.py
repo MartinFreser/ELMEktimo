@@ -5,10 +5,12 @@ import time
 from sklearn.neighbors import NearestNeighbors
 import Helpers
 from sklearn.externals import joblib
+from sklearn.base import clone
 
 class MetaDES():
     # hc ... consensus treeshold
-    def __init__(self, hC, K, Kp, metaCls, mode = "mean",metric = "l2", competenceTresshold = 0.5, printing = True):
+    def __init__(self, hC, K, Kp, metaCls, mode = "mean",metric = "l2", competenceTresshold = 0.5,
+                 metaClsMode = "one", printing = True):
         self.hC = hC
         self.K = K
         self.Kp = Kp
@@ -18,7 +20,9 @@ class MetaDES():
         self.metric = metric
         self.printing = printing
         self.nnAlgo = "kd_tree"
+        self.metaClsMode = metaClsMode #"one" is if we only use one metaCls, and "combined" is, if we use own meta classifier for every classifier
     def fit(self, XMeta, YMeta, YCaMeta, folder = "data/dataForMeta/"): #X ... features, y... trueValue, yC ... values predicted by classifier
+        self.nrOfClassifiers = YCaMeta.shape[1]
         wholeTime, timeForRegion = 0,0
         start = time.time()
         if self.printing: print("Starting to fit MetaDes")
@@ -63,19 +67,32 @@ class MetaDES():
         metaFeatures = np.array(metaFeatures)
 
         print("Fitting meta cls...")
-        self.metaCls.fit(metaFeatures, metaResponse)
+        self.fitMetaCls(metaFeatures, metaResponse)
         print("Done!")
 
         wholeTime = time.time()-start
         print("For training metaDes we needed %d time for finding region out of %d \n "
               "so we spent %.3f for region seeking" %(timeForRegion, wholeTime, timeForRegion/wholeTime))
+    def fitMetaCls(self,metaFeatures, metaResponse):
+        if self.metaClsMode == "one":
+            self.metaCls.fit(metaFeatures, metaResponse)
+        elif self.metaClsMode == "combined":
+            #Matriko razdelimo na nrOfClassifiers matrik
+            self.metaClassifiers = [clone(self.metaCls) for i in range(self.nrOfClassifiers)]
+            sanityCheck = 0
+            for i in range(self.nrOfClassifiers):
+                features = metaFeatures[i:][::self.nrOfClassifiers]
+                responses = metaResponse[i:][::self.nrOfClassifiers]
+                self.metaClassifiers[i].fit(features,responses)
+                sanityCheck+=features.shape[0]
+            if(sanityCheck != metaFeatures.shape[0]): raise AttributeError("metaFeatures are not dividable with nrOfClassifiers")
     def fitWithAlreadySaved(self, saveModel = True, folder = "data/dataForMeta/"):
         print("reading already saved features in "+folder)
         metaFeatures = np.loadtxt(folder + "MetaFeatures_K"+str(self.K)+"_Kp"+str(self.Kp)+".csv", delimiter=",")
         metaResponse = np.loadtxt(folder + "MetaResponse_K"+str(self.K)+"_Kp"+str(self.Kp)+".csv", delimiter = "\n")
         print("We are fitting already computed features in "+folder)
         print("shape of the feature matrix: " + str(metaFeatures.shape))
-        self.metaCls.fit(metaFeatures, metaResponse)
+        self.fitMetaCls(metaFeatures,metaResponse)
         print("done!")
         if saveModel: Helpers.shraniModel(self.metaCls, "data/dataForMeta/metaModels/"+self.metaCls.name+"/"+self.metaCls.name+".p")
     def loadMetaCls(self):
@@ -120,7 +137,8 @@ class MetaDES():
                 reg["YC"] = YCaSel[idxsReg][:,j] #vzamemo vse response classifierja v okolici x
                 opReg["YC"] = YCaSel[idxsOP][:,j]
                 metaFeatures.append(computeMetaFeatures(reg, opReg))
-            competence = self.metaCls.predict_proba(metaFeatures)[:,1]
+
+            competence = self.predictWithMetaCls(metaFeatures)
             allCls = np.column_stack([competence,range(len(YCaTest[i])), YCaTest[i]])
             timeForCls += time.time()-start3
             allCls = allCls[allCls[:,0].argsort()] # we sort after first component
@@ -152,6 +170,12 @@ class MetaDES():
         print("For training metaDes we needed %d time for finding region, %d time for cls out of %d \n "
               %(timeForRegion, timeForCls, wholeTime))
         return np.array(response)
+    def predictWithMetaCls(self,metaFeatures):
+        if self.metaClsMode == "one":
+            return self.metaCls.predict_proba(metaFeatures)[:,1]
+        elif self.metaClsMode == "combined":
+            responses = np.array([self.metaClassifiers[i].predict_proba(metaFeatures[i])[0] for i in range(self.nrOfClassifiers)])
+            return responses[:,1]
     def predict(self,XTest, XSel, YSel, YCaSel):
         return self.classes_.take(np.argmax(self.predict_proba(XTest, XSel, YSel, YCaSel), axis=1),
                                   axis=0)
