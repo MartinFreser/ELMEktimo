@@ -142,7 +142,7 @@ def wholeMetaProcedure(folder = "data/dataForMeta/"):
     # overproduction3(XProd,YProd, XMeta, XSel, XTest) #we generate classifiers and use them for responses
     nb = GaussianNB()#meta classifier for metaDes
     rf = RandomForestClassifier(n_estimators=100)
-    elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 20, activation_func = 'multiquadric', alpha=1))
+    # elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 20, activation_func = 'multiquadric', alpha=1))
     lr = LogisticRegression()
 
     metaDes = MetaDES(1,50, 50, lr, competenceTresshold=0.5, mode="weightedAll")

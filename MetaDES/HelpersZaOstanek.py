@@ -4,7 +4,7 @@ import MetaDES.HelpersMeta as hm
 from sklearn.externals import joblib
 from testingMetaDes import readClsResponse, readForMeta3
 
-def generirajIndexeZaOstanek(folder, nrOfInstances = 50000):
+def generirajIndexeZaOstanek(folder, nrOfInstances = 100000):
     idxMeta = set(random.sample(range(300000), nrOfInstances))
     idxSel = set(random.sample(range(300000, 600000), nrOfInstances))
     idxTest = set(random.sample(range(600000,900000), nrOfInstances))
@@ -116,12 +116,12 @@ def razreziClassifierje(folderOfClassifiers = "data/dataForMeta/ostanek/JureClas
 def rezreziFileProces():
     #Metoda doloci indekse za Meta, Selection in Test, katere bomo vzeli iz mnozice ostanekTrain
     folder = "data/dataForMeta/ostanek/"
-    # generirajIndexeZaOstanek(folder) #se izvede samo enkrat, da generiramo vse indexe
+    generirajIndexeZaOstanek(folder, nrOfInstances=150000) #se izvede samo enkrat, da generiramo vse indexe
 
     bigFileX = "data/dataForMeta/ostanek/ostanekTrainFeatures.csv"
     bigFileY = "data/dataForMeta/ostanek/ostanekTrainResponse.csv"
-    # razreziFileZaMetaX()
-    # razreziY(bigFileY)
+    razreziFileZaMetaX()
+    razreziY(bigFileY)
     razreziClassifierje()
 
 def fullTestProcess(folder = "data/dataForMeta/ostanek/", clsFile = "data/dataForMeta/models/metaDes/metaDes.p",
