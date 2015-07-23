@@ -36,9 +36,10 @@ def findParameters():
 
     metaClassifiers = [lr]
     hCs = [1.0,0.6, 0.5,0.4]
-    nrNeigh = [300]
+    nrNeigh = [1000]
     modes = ["weightedAll", "weighted", "mean"]
     metrics = ["l2", "l1", "mahalanobis", "chebyshev"]#BallTree.valid_metrics
+    metaClsModes = ["one","combined"]
     competenceTressholds = [0.4,0.5,0.6]
 
     # metaDes = MetaDES(0.8,1000, 50, lr, competenceTresshold=0.5, mode="weightedAll")
@@ -49,7 +50,7 @@ def findParameters():
     YCaTest = readClsResponse("Test", folder = folder)
 
     nrOfTrials = 0
-    allTrials = len(nrNeigh)*len(hCs)*len(modes)*len(metrics)*len(metaClassifiers)
+    allTrials = len(nrNeigh)*len(hCs)*len(modes)*len(metrics)*len(metaClassifiers)*len(metaClsModes)
     for nrN in nrNeigh:
         for hC in hCs:
             for mode in modes:
@@ -60,22 +61,26 @@ def findParameters():
                         metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
 
                         for cls in metaClassifiers:
-                            metaDes.metaCls = cls
-                            name = "metaDes_hC"+str(metaDes.hC)+\
-                                   "_K"+str(metaDes.K)+\
-                                   "_Kp"+str(metaDes.Kp)+\
-                                   "_mode"+metaDes.mode+\
-                                   "_competence"+str(metaDes.competenceTresshold)+\
-                                   "_cls"+metaDes.metaCls.name+\
-                                    "_metric"+metaDes.metric
-                            nrOfTrials += 1
-                            print("Fitting %d/%d trial" %(nrOfTrials,allTrials))
-                            metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
-                            Helpers.shraniModel(metaDes,folder+"models/"+name+"/"+name) #we save fitted model
-                            responseTest = metaDes.predict_proba(XTest, YCaTest, XSel, YSel, YCaSel)[:,1]
+                            for metaClsMode in metaClsModes:
+                                metaDes.metaClsMode = metaClsMode
+                                metaDes.nrOfClassifiers = 11
+                                metaDes.metaCls = cls
+                                name = "metaDes_hC"+str(metaDes.hC)+\
+                                       "_K"+str(metaDes.K)+\
+                                       "_Kp"+str(metaDes.Kp)+\
+                                       "_mode"+metaDes.mode+\
+                                       "_competence"+str(metaDes.competenceTresshold)+\
+                                       "_cls"+metaDes.metaCls.name+\
+                                        "_metric"+metaDes.metric+\
+                                        "_metaClsMode"+metaDes.metaClsMode
+                                nrOfTrials += 1
+                                print("Fitting %d/%d trial" %(nrOfTrials,allTrials))
+                                metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
+                                Helpers.shraniModel(metaDes,folder+"models/"+name+"/"+name) #we save fitted model
+                                responseTest = metaDes.predict_proba(XTest, YCaTest, XSel, YSel, YCaSel)[:,1]
 
 
-                            plotClassifiersAndSaveResult(YTest,YCaTest, responseTest, name, folder=folder) #we save figure and save results
+                                plotClassifiersAndSaveResult(YTest,YCaTest, responseTest, name, folder=folder) #we save figure and save results
                     except Exception as e:
                         allTrials -= 1
                         with open(folder+"error.log", "a") as fw:
@@ -101,7 +106,8 @@ def plotClassifiersAndSaveResult(YTest, YCaTest, YMetaResponse,graphName, folder
     print(str(result))
     pickleListAppend2([result,graphName], folder+"parameterResults.p") #zapisemo rezultat
 
-def loadResults(file = "data/dataForMeta/ostanek/parameterResults.p"):
+def loadResults(file = "data/dataForMeta/ostanek/parameterResults.p", sortMode = "lastPercentil"):
     list = pickle.load(open(file,"rb"))
-    list.sort(key = lambda x: sum(x[0][2:6]), reverse=True)
+    sorfFun = lambda x: sum(x[0][2:6]) if sortMode == "last4percentils" else x[0][5] if sortMode == "lastPercentil" else x[0][4] if sortMode == "90percentile" else x[0][3]
+    list.sort(key = lambda x: sum(x[0][2:6]) if sortMode == "last4percentils" else x[0][5] if sortMode == "lastPercentil" else x[0][4] if sortMode == "90percentile" else x[0][3], reverse=True)
     print("\n".join(map(str,list)))
