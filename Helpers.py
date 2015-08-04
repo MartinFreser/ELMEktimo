@@ -1,4 +1,8 @@
 __author__ = 'Martin'
+"""
+    Pomozne metode, ki so v pomoc v drugih programih. Implementirane so na primer precno preverjanje, branje podatkov,
+    delo za pisanje v datoteke, ...
+"""
 from sklearn.cross_validation import train_test_split
 from matplotlib import pyplot as plt
 import sklearn.metrics

@@ -8,6 +8,9 @@ from bagging import Bagging
 from sklearn.externals import joblib
 from sklearn import cross_validation
 from sklearn.metrics import precision_score
+"""
+    V tem razredu iscemo optimalne parametre za metodo Baggining
+"""
 class BaggingMethod():
     def __init__(self,estimator):
         self.estimator = estimator

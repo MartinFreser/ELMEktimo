@@ -7,8 +7,32 @@ import Helpers
 from sklearn.externals import joblib
 from sklearn.base import clone
 
+"""
+    Razred implementira metodo Meta Dynamic Ensemble Selection.
+"""
+
 class MetaDES():
+    """
     # hc ... consensus treeshold
+    # K ... Number of nearest neighbours of Region
+    # Kp ... Number of nearest neighbours of Output Region
+    # metaCls ... Meta classifier, which decides, if classifiers prediction is competent or not
+    # mode ... possible choices are "mean", "majorityVote", "majorityVoteProbs", "weighted", "weightedAll"
+            "mean" ... predict mean predictions off all classifiers, who has competence above competenceTresshold
+            "majorityVote" ... predict 0 or 1, according to majority votes of competent aclassifiers
+            "majorityVoteProbs" ... predict ration between number of classifiers, who predict above 0.5 and number
+                off all classifiers
+            "weighted" ... predicts weighted sum of predictions of competent classifiers according to their competence
+            "weightedAll" ... same as weighted, except it takes into account all classifiers
+        competenceTresshold ... tresshold, whether classifiers are competent or not
+        metric ... metric to use to measure distance between examples. Should be compatible with kd_tree or Ball_tree
+            metrics.
+        metaClsMode ... possible choices:
+            "one" ... We use one classifier to compute competence
+            "combined" ... We use as many meta classifiers as there are classifiers, so we have one metaClassifier for
+                each classifier to tell us, wether classifier is competent or not
+
+    """
     def __init__(self, hC, K, Kp, metaCls, mode = "mean",metric = "l2", competenceTresshold = 0.5,
                  metaClsMode = "one", printing = True):
         self.hC = hC
@@ -19,7 +43,6 @@ class MetaDES():
         self.competenceTresshold = competenceTresshold
         self.metric = metric
         self.printing = printing
-        self.nnAlgo = "kd_tree"
         self.metaClsMode = metaClsMode #"one" is if we only use one metaCls, and "combined" is, if we use own meta classifier for every classifier
     def fit(self, XMeta, YMeta, YCaMeta, folder = "data/dataForMeta/"): #X ... features, y... trueValue, yC ... values predicted by classifier
         self.nrOfClassifiers = YCaMeta.shape[1]
@@ -99,7 +122,7 @@ class MetaDES():
         cls = joblib.load("data/dataForMeta/metaModels/"+self.metaCls.name+"/"+self.metaCls.name+".p")
         self.cls = cls
 
-    # @profile
+    # @profile #we want to measure time for our method
     def predict_proba(self, XTest, YCaTest, XSel, YSel, YCaSel):
         wholeTime, timeForRegion, timeForCls = 0,0,0
         start = time.time()

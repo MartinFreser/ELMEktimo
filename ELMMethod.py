@@ -6,6 +6,11 @@ import Helpers
 import pickle
 from sklearn.ensemble import BaggingClassifier
 from sklearn.cross_validation import train_test_split
+
+"""
+    V tej metodi iscemo optimalne parametre za metodo ELM
+"""
+
 class ELMMethod():
     def poisciParametre(self, X,Y):
 

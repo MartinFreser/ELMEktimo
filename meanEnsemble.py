@@ -1,6 +1,10 @@
 __author__ = 'Martin'
 import numpy as np
 from sklearn.base import clone
+"""
+    Klasifikator, ki vzame osnovni klasifikator in nauci vec istih osnovnih klasifikatorjev, nato pa povpreci
+    napoved vsakega izmed teh klasifikatorjev
+"""
 class MeanEnsemble():
     def __init__(self,base_estimator, n_estimators=10):
         self.base_estimator = base_estimator

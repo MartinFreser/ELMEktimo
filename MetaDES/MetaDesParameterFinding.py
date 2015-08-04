@@ -5,12 +5,10 @@ import numpy as np
 # from ELMimplementacije.PythonELM.random_layer import RandomLayer
 import os
 from MetaDES.MetaDES import MetaDES
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from MetaDES.HelpersMeta import dviganjeDecilov
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LogisticRegression
-from sklearn.externals import joblib
 
 from Helpers import pickleListAppend2
 import pickle
@@ -19,10 +17,15 @@ from sklearn.ensemble import RandomForestClassifier
 from testingMetaDes import readForMeta2, readClsResponse
 from sklearn.neighbors.ball_tree import BallTree
 
-def findParameters():
+def findParameters(folder = "data/dataForMeta/ostanek/"):
+    """
+    V funkciji zaganjamo algoritem MetaDES na diskretnem naboru parametrov. Za vsako iteracijo shranimo zgrajen model,
+    shranimo rezultat po decilih in shranimo izrisan graf, ki nam zraven rezultata algoritma MetaDes izrise se rezultat
+    vseh algoritmov, ki so bili uporabljeni v ensemblu MetaDES.
+    :return:
+    """
     #we modify this function a little bit, preparing it for work with OstanekTrain
-    folder = "data/dataForMeta/ostanek/"
-    # divideDataForMeta(X, Y) #it divides data into Production, Meta and Selection
+
     XMeta, YMeta, XSel, YSel, XTest, YTest = readForMeta2(folder = folder)
 
     nb = GaussianNB()#meta classifier for metaDes
@@ -107,7 +110,18 @@ def plotClassifiersAndSaveResult(YTest, YCaTest, YMetaResponse,graphName, folder
     pickleListAppend2([result,graphName], folder+"parameterResults.p") #zapisemo rezultat
 
 def loadResults(file = "data/dataForMeta/ostanek/parameterResults.p", sortMode = "lastPercentil"):
+    """
+    Funkcija nalozi rezultate pridobljene v funkciji poisciParametre(), ter jih uredi po nacinu izbranem
+    v parametru sortMode.
+    :param file:
+    :param sortMode:
+                "lastPercentil" ... uredi po velikosti zadnjega percentila (95-ega)
+                "last4percentils" ... sestej vsoto zadnjih 4 percentilov in uredi po velikosti
+                "90percentile" ... uredi po velikosti predzadnjega percentila (90-ega)
+                Ce je podan kaksen drug string, uredi po velikosti 80-ega percentila
+    :return:
+    """
     list = pickle.load(open(file,"rb"))
-    sorfFun = lambda x: sum(x[0][2:6]) if sortMode == "last4percentils" else x[0][5] if sortMode == "lastPercentil" else x[0][4] if sortMode == "90percentile" else x[0][3]
-    list.sort(key = lambda x: sum(x[0][2:6]) if sortMode == "last4percentils" else x[0][5] if sortMode == "lastPercentil" else x[0][4] if sortMode == "90percentile" else x[0][3], reverse=True)
+    sortFun = lambda x: sum(x[0][2:6]) if sortMode == "last4percentils" else x[0][5] if sortMode == "lastPercentil" else x[0][4] if sortMode == "90percentile" else x[0][3]
+    list.sort(key = sortFun, reverse=True)
     print("\n".join(map(str,list)))
