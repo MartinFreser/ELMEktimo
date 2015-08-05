@@ -6,6 +6,6 @@ import sklearn
 if __name__ == "__main__":
 
     # MetaDES.MetaDesParameterFinding.findParameters()
-    # MetaDES.MetaDesParameterFinding.loadResults(sortMode="90percentile")
+    MetaDES.MetaDesParameterFinding.loadResults(sortMode="90percentile")
     # MetaDES.HelpersZaOstanek.rezreziFileProces()
-    print("hi")
+    # print("hi")

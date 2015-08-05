@@ -33,12 +33,13 @@ class MetaDES():
                 each classifier to tell us, wether classifier is competent or not
 
     """
-    def __init__(self, hC, K, Kp, metaCls, mode = "mean",metric = "l2", competenceTresshold = 0.5,
+    def __init__(self, hC, K, Kp, metaCls, nrOfClassifiers = None, mode = "mean",metric = "l2", competenceTresshold = 0.5,
                  metaClsMode = "one", printing = True):
         self.hC = hC
         self.K = K
         self.Kp = Kp
         self.metaCls = metaCls
+        self.nrOfClassifiers = nrOfClassifiers
         self.mode = mode
         self.competenceTresshold = competenceTresshold
         self.metric = metric

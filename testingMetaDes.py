@@ -145,16 +145,16 @@ def wholeMetaProcedure(folder = "data/dataForMeta/"):
     # elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 20, activation_func = 'multiquadric', alpha=1))
     lr = LogisticRegression()
 
-    metaDes = MetaDES(1,50, 50, lr, competenceTresshold=0.5, mode="weightedAll")
+    metaDes = MetaDES(1,300, 300, lr, competenceTresshold=0.5, mode="weighted", metaClsMode="combined")
 
 
-    # YCaMeta = readClsResponse("Meta") #we read all classifications for meta dataset
-    # metaDes.fit(XMeta, YMeta, YCaMeta)
+    YCaMeta = readClsResponse("Meta") #we read all classifications for meta dataset
+    metaDes.fit(XMeta, YMeta, YCaMeta)
     # rf.name = "RandomForest"
     # metaDes.fitWithAlreadySaved(saveModel = False) #if we already computed features
     # metaDes.loadMetaCls()
     # Helpers.shraniModel(metaDes,folder+"models/metaDes.p")
-    metaDes = joblib.load(folder+"models/metaDes/metaDes.p")
+    # metaDes = joblib.load(folder+"models/metaDes/metaDes.p")
 
     YCaSel = readClsResponse("Sel")
     YCaTest = readClsResponse("Test")
@@ -188,7 +188,7 @@ def wholeMetaProcedure2(folder = "data/dataForMeta/"):
 
     YCaMeta = readClsResponse("Meta", folder=folder) #we read all classifications for meta dataset
 
-    metaDes = MetaDES(0.8,50, 50, lr, competenceTresshold=0.5, mode="weightedAll", metaClsMode="combined",
+    metaDes = MetaDES(1,300, 300, lr, competenceTresshold=0.5, mode="weighted", metaClsMode="combined",
                       nrOfClassifiers = YCaMeta.shape[1])
 
     metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
