@@ -1,6 +1,6 @@
 __author__ = 'Martin'
 import numpy as np
-from MetaDES.HelpersMeta import findRegion, DOC, computeMetaFeatures
+from MetaDES.HelpersMeta import DOC, computeMetaFeatures
 import time
 from sklearn.neighbors import NearestNeighbors
 import Helpers
@@ -77,7 +77,7 @@ class MetaDES():
 
                     opReg["X"], opReg["Y"] = XMeta[idxsOP], YMeta[idxsOP]
                     for j, cls in enumerate(YCaMeta[i]):
-                        reg["YC"] = YCaMeta[idxsReg][:,j] #vzamemo vse response classifierja v okolici x
+                        reg["YC"] = YCaMeta[idxsReg][:,j] #vzamemo vse response j-tega classifierja v okolici x
                         opReg["YC"] = YCaMeta[idxsOP][:,j]
                         f = computeMetaFeatures(reg, opReg)
                         metaFeatures.append(list(f))

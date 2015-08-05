@@ -4,7 +4,12 @@ from sklearn.metrics import accuracy_score, precision_score
 from matplotlib import pyplot as plt
 from Helpers import metricWithRawDataAboveDecil
 import Helpers
-def DOC(x, mode = 0): #degree of consensus
+"""
+    V tej datoteki implementiramo metode, ki nam pomagajo pri rezredu MetaDES()
+"""
+def DOC(x, mode = 0):
+    #degree of consensus
+    #   we have two possible modes
     if(mode == 0):
         doc = len(x[x == x[0]])/len(x)
         return max(doc,1-doc)
@@ -13,15 +18,10 @@ def DOC(x, mode = 0): #degree of consensus
         t2 = len(x)-t1
         delta = abs(t1-t2)
         return delta/len(x)
-def findRegion(distFrom, x, K,method = 'normalRegion',  distFunc = None):
-    if distFunc is None: distFunc = lambda x1,x2: np.linalg.norm(x1-x2, axis=1) #euclidian distance
-    dist = [(d, i) for i, d in enumerate(distFunc(x,distFrom))]
-    dist.sort()
-    dist = dist[1:K+1] #first element is element itself with zero distance
-    idxs = [d[1] for d in dist][:K]
-    return idxs
 # @profile
 def computeMetaFeatures(reg, opReg):
+    #it computes meta features as stated in article
+    # we added one more feature, which computes mean and standard deviation of prediction of classifiers (f6)
     f = []
     #f1
     f1 = 1-np.abs(reg["Y"] - np.round(reg["YC"]))
@@ -47,6 +47,17 @@ def computeMetaFeatures(reg, opReg):
     f.append(std)
 
     #f5 to be done
+
+    f6 = np.abs(reg["YC"]-reg["Y"])
+    mean,std = Helpers.meanAndStd(f6)
+    f.append(mean)
+    f.append(std)
+
+    f7 = np.abs(opReg["YC"]-opReg["Y"])
+    mean,std = Helpers.meanAndStd(f7)
+    f.append(mean)
+    f.append(std)
+
     return f
 
 
