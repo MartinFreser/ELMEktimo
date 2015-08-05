@@ -3,6 +3,8 @@ import Helpers
 import numpy as np
 # from ELMimplementacije.PythonELM.elm import GenELMClassifier
 # from ELMimplementacije.PythonELM.random_layer import RandomLayer
+from ELMImplementacije.PythonELM.elm import GenELMClassifier
+from ELMImplementacije.PythonELM.random_layer import RandomLayer
 import os
 from MetaDES.MetaDES import MetaDES
 from sklearn.tree import DecisionTreeClassifier
@@ -76,32 +78,33 @@ def overproduction2(XProd,YProd, XMeta, XSel, XTest, nrOfCls = 20):
         np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaMeta.csv", YCaMeta, delimiter="\n")
         np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaSel.csv", YCaSel, delimiter="\n")
         np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaTest.csv", YCaTest, delimiter="\n")
-def overproduction3(XProd,YProd, XMeta, XSel, XTest, nrOfCls = 10):
+def overproductionRf(XProd,YProd, XMeta, XSel, XTest, nrOfCls = 10, folder = "data/dataForMeta/"):
     #produces lot of cls for problem
     for i in range(nrOfCls):
-        print("Producing rf " + str(i))
-        cls = RandomForestClassifier(n_estimators=np.random.randint(80,120))
+        cls = RandomForestClassifier(n_estimators=np.random.randint(1000,1200), n_jobs=8)
         cls.name1 = "rf"+str(i)+"_"+str(cls.n_estimators)
+        print("Producing " + cls.name1)
         YCaProduction, YCaMeta, YCaSel, YCaTest = trainClsForMeta(XProd, YProd, XMeta, XSel, XTest, cls)
         #save in file
-        if(not os.path.isdir("data/dataForMeta/classifiers/"+cls.name1)): os.makedirs("data/dataForMeta/classifiers/"+cls.name1)
-        np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaProd.csv", YCaProduction, delimiter="\n")
-        np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaMeta.csv", YCaMeta, delimiter="\n")
-        np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaSel.csv", YCaSel, delimiter="\n")
-        np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaTest.csv", YCaTest, delimiter="\n")
+        if(not os.path.isdir(folder + "classifiers/"+cls.name1)): os.makedirs(folder + "classifiers/"+cls.name1)
+        np.savetxt(folder + "classifiers/"+cls.name1+"/YCaProd.csv", YCaProduction, delimiter="\n")
+        np.savetxt(folder + "classifiers/"+cls.name1+"/YCaMeta.csv", YCaMeta, delimiter="\n")
+        np.savetxt(folder + "classifiers/"+cls.name1+"/YCaSel.csv", YCaSel, delimiter="\n")
+        np.savetxt(folder + "classifiers/"+cls.name1+"/YCaTest.csv", YCaTest, delimiter="\n")
 
-def overproduction4(XProd,YProd, XMeta, XSel, XTest, nrOfCls = 100):
+def overproductionELM(XProd,YProd, XMeta, XSel, XTest, nrOfCls = 100, folder = "data/dataForMeta/"):
     #produces lot of cls for problem
     for i in range(nrOfCls):
-        cls = RandomForestClassifier(n_estimators=np.random.randint(20,100))
-        cls.name1 = "rf"+str(i)
+        cls = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = np.random.randint(100,500), activation_func = 'multiquadric', alpha=1))
+        cls.name1 = "elm_"+str(cls.hidden_layer.n_hidden)
         YCaProduction, YCaMeta, YCaSel, YCaTest = trainClsForMeta(XProd, YProd, XMeta, XSel, XTest, cls)
+        print("Producing " + cls.name1)
         #save in file
-        if(not os.path.isdir("data/dataForMeta/classifiers/"+cls.name1)): os.makedirs("data/dataForMeta/classifiers/"+cls.name1)
-        np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaProd.csv", YCaProduction, delimiter="\n")
-        np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaMeta.csv", YCaMeta, delimiter="\n")
-        np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaSel.csv", YCaSel, delimiter="\n")
-        np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaTest.csv", YCaTest, delimiter="\n")
+        if(not os.path.isdir(folder + "classifiers/"+cls.name1)): os.makedirs(folder + "classifiers/"+cls.name1)
+        np.savetxt(folder + "classifiers/"+cls.name1+"/YCaProd.csv", YCaProduction, delimiter="\n")
+        np.savetxt(folder + "classifiers/"+cls.name1+"/YCaMeta.csv", YCaMeta, delimiter="\n")
+        np.savetxt(folder + "classifiers/"+cls.name1+"/YCaSel.csv", YCaSel, delimiter="\n")
+        np.savetxt(folder + "classifiers/"+cls.name1+"/YCaTest.csv", YCaTest, delimiter="\n")
 def overproductionProcess():
     X, Y = Helpers.readData()
     t = int(len(X)*0.9)
@@ -169,11 +172,11 @@ def wholeMetaProcedure(folder = "data/dataForMeta/"):
 
     plt.show()
 
-def wholeMetaProcedure2(folder = "data/dataForMeta/"):
+def wholeMetaProcedure2(folder = "data/dataForMeta/ostanek/"):
     #we modify this function a little bit, preparing it for work with OstanekTrain
     # divideDataForMeta(X, Y) #it divides data into Production, Meta and Selection
     XMeta, YMeta, XSel, YSel, XTest, YTest = readForMeta2(folder = folder)
-    # overproduction3(XProd,YProd, XMeta, XSel, XTest) #we generate classifiers and use them for responses
+    overproductionRf(XProd,YProd, XMeta, XSel, XTest) #we generate classifiers and use them for responses
     # nb = GaussianNB()#meta classifier for metaDes
     # rf = RandomForestClassifier(n_estimators=100)
     # elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 20, activation_func = 'multiquadric', alpha=1))
@@ -211,11 +214,13 @@ def plotClassifiers(folder = "data/dataForMeta/", clsResponse = "MetaDesResponse
     YMetaDes = np.loadtxt(folder+clsResponse, delimiter=",")[:,1]
     YTest = np.loadtxt(folder + "Ytest.csv", delimiter="\n")
     YCaTest = readClsResponse("Test", folder = folder)
-    handles.append(dviganjeDecilov(YTest, YMetaDes, "MetaDes", linewidth=4)[1])
+    # handles.append(dviganjeDecilov(YTest, YMetaDes, "MetaDes", linewidth=4)[1])
     clsNames = os.listdir(folder+"classifiers/")
     for i, YCa in enumerate(YCaTest.T):
         print(clsNames[i],)
-        handles.append(dviganjeDecilov(YTest, YCa, clsNames[i])[1])
+        res, handle = dviganjeDecilov(YTest, YCa, clsNames[i])
+        handles.append(handle)
+        plt.text(0.95,res[5],clsNames[i])
     plt.legend(handles = handles, loc = 2)
 
     # plt.savefig(folder+"krneki.png", bbox_inches='tight')

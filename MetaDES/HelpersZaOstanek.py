@@ -116,7 +116,7 @@ def razreziClassifierje(folderOfClassifiers = "data/dataForMeta/ostanek/JureClas
 def rezreziFileProces():
     #Metoda doloci indekse za Meta, Selection in Test, katere bomo vzeli iz mnozice ostanekTrain
     folder = "data/dataForMeta/ostanek/"
-    generirajIndexeZaOstanek(folder, nrOfInstances=150000) #se izvede samo enkrat, da generiramo vse indexe
+    generirajIndexeZaOstanek(folder, nrOfInstances=300000) #se izvede samo enkrat, da generiramo vse indexe
 
     bigFileX = "data/dataForMeta/ostanek/ostanekTrainFeatures.csv"
     bigFileY = "data/dataForMeta/ostanek/ostanekTrainResponse.csv"
