@@ -20,7 +20,9 @@ import MetaDES.MetaDesParameterFinding
 import os
 from RemoveNonRankedFeatures import RemoveNonRankedFeatures
 
-
+"""
+Tu imamo narejene razlicne eksperimente, ki smo jih poganjali tekom projekta
+"""
 
 def main1():
     X, Y = readData(10000)

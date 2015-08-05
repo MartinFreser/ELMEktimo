@@ -3,6 +3,19 @@ import numpy as np
 from Helpers import metricWithRawDataAboveDecil
 from sklearn.metrics import precision_score
 from sklearn.base import clone
+"""
+    Implementacije metode Bagging. V metodi si izberemo kateri klasifikator bomo uporabljali za osnovni klasifikator,
+    Koliko jih bomo ustvarili. Implementirali smo tudi OutOfBag napako, kjer ocenjujemo vsak klasifikator, kaksno
+    napako je naredil na testni mnozici. S parametrom samples_ratio dolocimo, kako velika bo ucna mnozica.
+    S parametrom ratioCutOffEstimator pa dolocimo, koliko najboljsih klasifikatorjev bomo upostevali.
+
+    Napovedujemo s povprecno vrednostjo izbraznih klasifikatorjev.
+
+
+    Implementirali smo tudi Bagging Uncertain, ki je podrazred Bagginga, le da pri napovedovanju napovemo primere,
+    ki so bili negotovi (torej da so imeli razliko v razlicnih napovedih klasifikatorjev vecjo) in jih napovemo
+    kot nedonosne
+"""
 class Bagging():
     def __init__(self,base_estimator, n_estimators=10, samples_ratio=0.8, ratioCutOffEstimators=0.3):
         self.base_estimator = base_estimator
