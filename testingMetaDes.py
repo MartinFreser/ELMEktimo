@@ -105,14 +105,12 @@ def overproductionELM(XProd,YProd, XMeta, XSel, XTest, nrOfCls = 100, folder = "
         np.savetxt(folder + "classifiers/"+cls.name1+"/YCaMeta.csv", YCaMeta, delimiter="\n")
         np.savetxt(folder + "classifiers/"+cls.name1+"/YCaSel.csv", YCaSel, delimiter="\n")
         np.savetxt(folder + "classifiers/"+cls.name1+"/YCaTest.csv", YCaTest, delimiter="\n")
-def overproductionProcess():
-    X, Y = Helpers.readData()
-    t = int(len(X)*0.9)
-    X, Y, XTest, YTest = X[:t], Y[:t], X[t:], Y[t:]
+def overproductionProcess(folder):
+    XProd, YProd = Helpers.readData()
     # divideDataForMeta(X, Y) #it divides data into Production, Meta and Selection
-    XProd, YProd, XMeta, YMeta, XSel, YSel = readForMeta()
-    overproduction2(XProd,YProd, XMeta, XSel, XTest) #we generate classifiers and use them for responses
-def readForMeta2(folder = "data/dataForMeta/"):
+    XMeta, YMeta, XSel, YSel, XTest, YTest = readForMeta2(folder)
+    overproductionELM(XProd,YProd, XMeta, XSel, XTest, folder=folder) #we generate classifiers and use them for responses
+def readForMeta2(folder):
     #reads for meta, when we already have overproduction
     print("we are reading in folder %s" %folder)
     XMeta = np.loadtxt(folder + "XMeta.csv", delimiter=",")
@@ -245,8 +243,8 @@ def trainClsForMeta(XProduction, YProduction,XMeta, XSel, XTest, cls):
     return YCaProduction, YCaMeta, YCaSel, YCaTest
 
 if __name__ == "__main__":
-    folder = "data/dataForMeta/"
-    # overproductionProcess()
-    wholeMetaProcedure2(folder)
+    folder = "data/dataForMeta/ostanek/"
+    overproductionProcess(folder)
+    # wholeMetaProcedure2(folder)
     # plotClassifiers(folder = "data/dataForMeta/", clsResponse="MetaDesResponse_weighted.csv")
 
