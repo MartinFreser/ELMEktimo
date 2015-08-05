@@ -88,6 +88,12 @@ def readClsResponse(file):
             res.append(float(line.strip()))
     return np.array(res).astype(float)
 
+def loadResults(file = "parameters.p"):
+    #load results produced by main2)
+    results = pickle.load(open(file,"rb"))
+    results.sort(key = lambda r: r[5], reverse = True) #results.sort(key = lambda r: r[0], reverse = True)
+    print ("\n".join(map(str,results)))
+
 def metricWithRawData(classPredicts, rawPredicts, trueY, tresshold= 0.5, metricFunction = accuracy_score):
     if(len(classPredicts) != len(trueY)): raise Exception("Lengts of vectors classPredicts, rawPredicts, trueY should be"
                                                           "the same")

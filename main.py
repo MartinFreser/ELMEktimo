@@ -1,8 +1,8 @@
 __author__ = 'Martin'
 import pandas
 from matplotlib import pyplot as plt
-from ELMimplementacije.PythonELM.elm import GenELMClassifier
-from ELMimplementacije.PythonELM.random_layer import RandomLayer
+from ELMImplementacije.PythonELM.elm import GenELMClassifier
+from ELMImplementacije.PythonELM.random_layer import RandomLayer
 import numpy as np
 from Helpers import readData, dviganjeDecilov, dviganjeDecilovKkrat, splitTrainTest, shraniModel, readClsResponse
 import ELMMethod, BaggingMethod
@@ -43,9 +43,8 @@ def main2():
 
     ELMMethod.ELMMethod().poisciParametre(X,Y)
     # vrniMethod(pickle.load(open("parameter.p","rb")), X, Y)
-def main2LoadResults():
+def main2LoadResults(file = "parameters.p"):
     #load results produced by main2)
-    file = "parameters.p" #"baggedElmcParameters.p"
     results = pickle.load(open(file,"rb"))
     results.sort(key = lambda r: r[5], reverse = True) #results.sort(key = lambda r: r[0], reverse = True)
     print ("\n".join(map(str,results)))
@@ -69,8 +68,8 @@ def main3():
 def main4():
     #na enem algoritmu dvigujem decil na testni mnozici in gledamo precision
     X, Y = readData()
-    t = len(X)
-    X,Y = X[:t/2], Y[:t/2]
+    t = int(len(X)*0.9)
+    X,Y = X[:t], Y[:t]
     # trainFtrFile = "//./Z:/spaceextension/test10k/csv/trainFtrExtended_200f.csv"
     # trainClsFile = "//./Z:/spaceextension/test10k/csv/trainClsExtended.csv"
     # X, Y = readData(trainFtrFile=trainFtrFile,
@@ -79,11 +78,11 @@ def main4():
     x_train, x_test, y_train, y_test = splitTrainTest(X, Y, test_size=0.1)
     print("Prebral datoteke")
 
-    n_hidden = 100
+    n_hidden = 2000
     elmc = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = n_hidden, activation_func = 'multiquadric', alpha=1))
     elmc1 = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = n_hidden, activation_func = 'multiquadric', alpha=0.5))
     elmc2 = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = n_hidden, activation_func = 'multiquadric', alpha=0))
-    rf = sklearn.ensemble.RandomForestClassifier(n_estimators = 1000, n_jobs = 2)
+    rf = sklearn.ensemble.RandomForestClassifier(n_estimators = 100, n_jobs = 2)
     # baggedElmc = BaggingClassifier(elmc, n_estimators=60, bootstrap= False, max_samples=0.6, max_features=0.6)
     adaTree = AdaBoostClassifier(n_estimators=30)
     baggedElmc = Bagging(elmc, n_estimators=100,ratioCutOffEstimators=0.7)
@@ -150,14 +149,15 @@ def main7():
     x_train, x_test, y_train, y_test = splitTrainTest(X, Y, test_size=0.1)
     results = []
 
-    cls = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 100, activation_func = 'multiquadric', alpha=1))
+    cls = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 2200, activation_func = 'multiquadric', alpha=1))
     # cls = Bagging(cls, n_estimators=50,ratioCutOffEstimators=0.9)
-    cls = BaggingUncertain(cls,n_estimators=50,ratioCutOffEstimators=0.9, ratioOfDeltaRemove=0.1)
+    # cls = BaggingUncertain(cls,n_estimators=50,ratioCutOffEstimators=0.9, ratioOfDeltaRemove=0.1)
+    cls = RandomForestClassifier(n_estimators=1000, n_jobs=8)
 
     for i in range(7):
         print(i)
         cls.fit(x_train,y_train)
-        results.append(dviganjeDecilov(x_test,y_test,cls, "elmc", plotResults=True, decils=[0.5,0.9])[0])
+        results.append(dviganjeDecilov(x_test,y_test,cls, "elmc", plotResults=True, decils=[0.9,0.95])[0])
     results = np.array(results)
     print(results)
     print(results.std(axis=0))
@@ -242,5 +242,6 @@ if __name__ == "__main__":
     # main2LoadResults()
 
     # MetaDES.HelpersZaOstanek.fullTestProcess()
-    MetaDES.MetaDesParameterFinding.loadResults()
+    # MetaDES.MetaDesParameterFinding.loadResults()
+    main2LoadResults("parametersELM.p")
 

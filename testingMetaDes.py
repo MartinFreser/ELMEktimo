@@ -14,7 +14,7 @@ from sklearn.externals import joblib
 
 from sklearn.ensemble import RandomForestClassifier
 
-from SoftMaxRegression.softMaxSKLearn import softMaxSklearn
+# from SoftMaxRegression.softMaxSKLearn import softMaxSklearn
 
 def main1():
     #method for testing MetaDES
