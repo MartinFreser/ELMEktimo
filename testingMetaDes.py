@@ -1,10 +1,10 @@
 __author__ = 'Martin'
 import Helpers
 import numpy as np
-# from ELMimplementacije.PythonELM.elm import GenELMClassifier
-# from ELMimplementacije.PythonELM.random_layer import RandomLayer
-from ELMImplementacije.PythonELM.elm import GenELMClassifier
-from ELMImplementacije.PythonELM.random_layer import RandomLayer
+from ELMimplementacije.PythonELM.elm import GenELMClassifier
+from ELMimplementacije.PythonELM.random_layer import RandomLayer
+# from ELMImplementacije.PythonELM.elm import GenELMClassifier
+# from ELMImplementacije.PythonELM.random_layer import RandomLayer
 import os
 from MetaDES.MetaDES import MetaDES
 from sklearn.tree import DecisionTreeClassifier
@@ -176,7 +176,7 @@ def wholeMetaProcedure2(folder = "data/dataForMeta/ostanek/"):
     #we modify this function a little bit, preparing it for work with OstanekTrain
     # divideDataForMeta(X, Y) #it divides data into Production, Meta and Selection
     XMeta, YMeta, XSel, YSel, XTest, YTest = readForMeta2(folder = folder)
-    overproductionRf(XProd,YProd, XMeta, XSel, XTest) #we generate classifiers and use them for responses
+    # overproductionRf(XProd,YProd, XMeta, XSel, XTest) #we generate classifiers and use them for responses
     # nb = GaussianNB()#meta classifier for metaDes
     # rf = RandomForestClassifier(n_estimators=100)
     # elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 20, activation_func = 'multiquadric', alpha=1))
@@ -192,12 +192,12 @@ def wholeMetaProcedure2(folder = "data/dataForMeta/ostanek/"):
     YCaMeta = readClsResponse("Meta", folder=folder) #we read all classifications for meta dataset
 
     metaDes = MetaDES(1,300, 300, lr, competenceTresshold=0.5, mode="weighted", metaClsMode="combined",
-                      nrOfClassifiers = YCaMeta.shape[1])
+                      nrOfClassifiers = YCaMeta.shape[1], normalizeMetaFeat=False)
 
-    metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
+    # metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
     # rf.name = "RandomForest"
     # metaDes.nrOfClassifiers = 11
-    # metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
+    metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
     # metaDes.loadMetaCls()
 
     YCaSel = readClsResponse("Sel", folder = folder)
@@ -214,7 +214,7 @@ def plotClassifiers(folder = "data/dataForMeta/", clsResponse = "MetaDesResponse
     YMetaDes = np.loadtxt(folder+clsResponse, delimiter=",")[:,1]
     YTest = np.loadtxt(folder + "Ytest.csv", delimiter="\n")
     YCaTest = readClsResponse("Test", folder = folder)
-    # handles.append(dviganjeDecilov(YTest, YMetaDes, "MetaDes", linewidth=4)[1])
+    handles.append(dviganjeDecilov(YTest, YMetaDes, "MetaDes", linewidth=4)[1])
     clsNames = os.listdir(folder+"classifiers/")
     for i, YCa in enumerate(YCaTest.T):
         print(clsNames[i],)
@@ -245,8 +245,8 @@ def trainClsForMeta(XProduction, YProduction,XMeta, XSel, XTest, cls):
     return YCaProduction, YCaMeta, YCaSel, YCaTest
 
 if __name__ == "__main__":
-    folder = "data/dataForMeta/ostanek/"
+    folder = "data/dataForMeta/"
     # overproductionProcess()
     wholeMetaProcedure2(folder)
-    # plotClassifiers(folder = "data/dataForMeta/ostanek/", clsResponse="MetaDesResponse_weightedAll.csv")
+    # plotClassifiers(folder = "data/dataForMeta/", clsResponse="MetaDesResponse_weighted.csv")
 

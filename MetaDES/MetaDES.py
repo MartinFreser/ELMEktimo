@@ -6,6 +6,7 @@ from sklearn.neighbors import NearestNeighbors
 import Helpers
 from sklearn.externals import joblib
 from sklearn.base import clone
+from sklearn.preprocessing import StandardScaler
 
 """
     Razred implementira metodo Meta Dynamic Ensemble Selection.
@@ -34,7 +35,7 @@ class MetaDES():
 
     """
     def __init__(self, hC, K, Kp, metaCls, nrOfClassifiers = None, mode = "mean",metric = "l2", competenceTresshold = 0.5,
-                 metaClsMode = "one", printing = True):
+                 metaClsMode = "one", printing = True, normalizeMetaFeat = True):
         self.hC = hC
         self.K = K
         self.Kp = Kp
@@ -45,6 +46,7 @@ class MetaDES():
         self.metric = metric
         self.printing = printing
         self.metaClsMode = metaClsMode #"one" is if we only use one metaCls, and "combined" is, if we use own meta classifier for every classifier
+        self.normalizeMetaFeat = normalizeMetaFeat
     def fit(self, XMeta, YMeta, YCaMeta, folder = "data/dataForMeta/"): #X ... features, y... trueValue, yC ... values predicted by classifier
         self.nrOfClassifiers = YCaMeta.shape[1]
         wholeTime, timeForRegion = 0,0
@@ -98,6 +100,13 @@ class MetaDES():
         print("For training metaDes we needed %d time for finding region out of %d \n "
               "so we spent %.3f for region seeking" %(timeForRegion, wholeTime, timeForRegion/wholeTime))
     def fitMetaCls(self,metaFeatures, metaResponse):
+        #Method fits metaClassifier
+
+        #scale metaFeatures
+        if self.normalizeMetaFeat:
+            self.scaler = StandardScaler()
+            self.scaler.fit(metaFeatures)
+            metaFeatures = self.scaler.transform(metaFeatures)
         if self.metaClsMode == "one":
             self.metaCls.fit(metaFeatures, metaResponse)
         elif self.metaClsMode == "combined":
@@ -195,6 +204,8 @@ class MetaDES():
               %(timeForRegion, timeForCls, wholeTime))
         return np.array(response)
     def predictWithMetaCls(self,metaFeatures):
+        if self.normalizeMetaFeat:
+            metaFeatures = self.scaler.transform(metaFeatures)
         if self.metaClsMode == "one":
             return self.metaCls.predict_proba(metaFeatures)[:,1]
         elif self.metaClsMode == "combined":
