@@ -183,13 +183,17 @@ def wholeMetaProcedure2(folder = "data/dataForMeta/"):
     # sm = softMaxSklearn()
     lr = LogisticRegression()
 
-    metaDes = MetaDES(0.8,50, 50, lr, competenceTresshold=0.5, mode="weightedAll", metaClsMode="combined")
+
 
 
     YCaMeta = readClsResponse("Meta", folder=folder) #we read all classifications for meta dataset
+
+    metaDes = MetaDES(0.8,50, 50, lr, competenceTresshold=0.5, mode="weightedAll", metaClsMode="combined",
+                      nrOfClassifiers = YCaMeta.shape[1])
+
     metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
     # rf.name = "RandomForest"
-    metaDes.nrOfClassifiers = 11
+    # metaDes.nrOfClassifiers = 11
     # metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
     # metaDes.loadMetaCls()
 
@@ -236,7 +240,7 @@ def trainClsForMeta(XProduction, YProduction,XMeta, XSel, XTest, cls):
     return YCaProduction, YCaMeta, YCaSel, YCaTest
 
 if __name__ == "__main__":
-    folder = "data/dataForMeta/"
+    folder = "data/dataForMeta/ostanek/"
     # overproductionProcess()
     wholeMetaProcedure2(folder)
     # plotClassifiers(folder = "data/dataForMeta/ostanek/", clsResponse="MetaDesResponse_weightedAll.csv")
