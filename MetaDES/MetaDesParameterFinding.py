@@ -3,6 +3,8 @@ import Helpers
 import numpy as np
 # from ELMimplementacije.PythonELM.elm import GenELMClassifier
 # from ELMimplementacije.PythonELM.random_layer import RandomLayer
+from ELMImplementacije.PythonELM.elm import GenELMClassifier
+from ELMImplementacije.PythonELM.random_layer import RandomLayer
 import os
 from MetaDES.MetaDES import MetaDES
 from sklearn.naive_bayes import GaussianNB
@@ -24,25 +26,26 @@ def findParameters(folder = "data/dataForMeta/ostanek/"):
     vseh algoritmov, ki so bili uporabljeni v ensemblu MetaDES.
     :return:
     """
-    #we modify this function a little bit, preparing it for work with OstanekTrain
+
 
     XMeta, YMeta, XSel, YSel, XTest, YTest = readForMeta2(folder = folder)
 
     nb = GaussianNB()#meta classifier for metaDes
     nb.name="Bayes"
-    rf = RandomForestClassifier(n_estimators=50)
+    rf = RandomForestClassifier(n_estimators=1000, n_jobs=2)
     rf.name="rf"
-    # elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 100, activation_func = 'multiquadric', alpha=1))
-    # elm.name="elm"
+    elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 400, activation_func = 'multiquadric', alpha=1))
+    elm.name="elm"
     lr = LogisticRegression()
     lr.name= "lr"
 
-    metaClassifiers = [lr]
-    hCs = [1.0,0.6, 0.5,0.4]
-    nrNeigh = [1000]
-    modes = ["weightedAll", "weighted", "mean"]
-    metrics = ["l2", "l1", "mahalanobis", "chebyshev"]#BallTree.valid_metrics
-    metaClsModes = ["one","combined"]
+    metaClassifiers = [lr, rf, elm]
+    hCs = [1.0, 0.5]
+    nrNeigh = [10000]#, 1000, 3000]
+    modes = ["weighted"]
+    metrics = ["l2", "chebyshev"]#BallTree.valid_metrics
+    metaClsModes = ["combined"]
+    normalizeMetaFeatures = [True, False]
     competenceTressholds = [0.4,0.5,0.6]
 
     # metaDes = MetaDES(0.8,1000, 50, lr, competenceTresshold=0.5, mode="weightedAll")
@@ -53,37 +56,42 @@ def findParameters(folder = "data/dataForMeta/ostanek/"):
     YCaTest = readClsResponse("Test", folder = folder)
 
     nrOfTrials = 0
-    allTrials = len(nrNeigh)*len(hCs)*len(modes)*len(metrics)*len(metaClassifiers)*len(metaClsModes)
+    allTrials = len(nrNeigh)*len(hCs)*len(modes)*len(metrics)*len(metaClassifiers)*len(metaClsModes)*len(normalizeMetaFeatures)
+    print("We will have %d trials" %allTrials)
     for nrN in nrNeigh:
         for hC in hCs:
             for mode in modes:
                 for metric in metrics:
                     try:
-                        metaDes = MetaDES(hC,nrN, nrN, lr, competenceTresshold=0.5, mode=mode, metric=metric)
+                        metaDes = MetaDES(hC,nrN, nrN, lr, competenceTresshold=0.5, mode=mode,
+                                          metric=metric)
                         print("calculating meta features...")
                         metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
 
                         for cls in metaClassifiers:
                             for metaClsMode in metaClsModes:
-                                metaDes.metaClsMode = metaClsMode
-                                metaDes.nrOfClassifiers = 11
-                                metaDes.metaCls = cls
-                                name = "metaDes_hC"+str(metaDes.hC)+\
-                                       "_K"+str(metaDes.K)+\
-                                       "_Kp"+str(metaDes.Kp)+\
-                                       "_mode"+metaDes.mode+\
-                                       "_competence"+str(metaDes.competenceTresshold)+\
-                                       "_cls"+metaDes.metaCls.name+\
-                                        "_metric"+metaDes.metric+\
-                                        "_metaClsMode"+metaDes.metaClsMode
-                                nrOfTrials += 1
-                                print("Fitting %d/%d trial" %(nrOfTrials,allTrials))
-                                metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
-                                Helpers.shraniModel(metaDes,folder+"models/"+name+"/"+name) #we save fitted model
-                                responseTest = metaDes.predict_proba(XTest, YCaTest, XSel, YSel, YCaSel)[:,1]
+                                for normalizeMetaFeat in normalizeMetaFeatures:
+                                    metaDes.metaClsMode = metaClsMode
+                                    metaDes.metaCls = cls
+                                    metaDes.normalizeMetaFeat = normalizeMetaFeat
+                                    name = "metaDes_hC"+str(metaDes.hC)+\
+                                           "_K"+str(metaDes.K)+\
+                                           "_Kp"+str(metaDes.Kp)+\
+                                           "_mode"+metaDes.mode+\
+                                           "_competence"+str(metaDes.competenceTresshold)+\
+                                           "_cls"+metaDes.metaCls.name+\
+                                            "_metric"+metaDes.metric+\
+                                            "_metaClsMode"+metaDes.metaClsMode+\
+                                            "_normMetaFeat" + str(metaDes.normalizeMetaFeat)
+
+                                    nrOfTrials += 1
+                                    print("Fitting %d/%d trial" %(nrOfTrials,allTrials))
+                                    metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
+                                    Helpers.shraniModel(metaDes,folder+"models/"+name+"/"+name) #we save fitted model
+                                    responseTest = metaDes.predict_proba(XTest, YCaTest, XSel, YSel, YCaSel)[:,1]
 
 
-                                plotClassifiersAndSaveResult(YTest,YCaTest, responseTest, name, folder=folder) #we save figure and save results
+                                    plotClassifiersAndSaveResult(YTest,YCaTest, responseTest, name, folder=folder) #we save figure and save results
                     except Exception as e:
                         allTrials -= 1
                         with open(folder+"error.log", "a") as fw:

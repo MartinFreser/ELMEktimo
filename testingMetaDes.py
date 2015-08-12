@@ -1,10 +1,10 @@
 __author__ = 'Martin'
 import Helpers
 import numpy as np
-from ELMimplementacije.PythonELM.elm import GenELMClassifier
-from ELMimplementacije.PythonELM.random_layer import RandomLayer
-# from ELMImplementacije.PythonELM.elm import GenELMClassifier
-# from ELMImplementacije.PythonELM.random_layer import RandomLayer
+# from ELMimplementacije.PythonELM.elm import GenELMClassifier
+# from ELMimplementacije.PythonELM.random_layer import RandomLayer
+from ELMImplementacije.PythonELM.elm import GenELMClassifier
+from ELMImplementacije.PythonELM.random_layer import RandomLayer
 import os
 from MetaDES.MetaDES import MetaDES
 from sklearn.tree import DecisionTreeClassifier
@@ -78,7 +78,7 @@ def overproduction2(XProd,YProd, XMeta, XSel, XTest, nrOfCls = 20):
         np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaMeta.csv", YCaMeta, delimiter="\n")
         np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaSel.csv", YCaSel, delimiter="\n")
         np.savetxt("data/dataForMeta/classifiers/"+cls.name1+"/YCaTest.csv", YCaTest, delimiter="\n")
-def overproductionRf(XProd,YProd, XMeta, XSel, XTest, nrOfCls = 10, folder = "data/dataForMeta/"):
+def overproductionRf(XProd,YProd, XMeta, XSel, XTest, nrOfCls = 5, folder = "data/dataForMeta/"):
     #produces lot of cls for problem
     for i in range(nrOfCls):
         cls = RandomForestClassifier(n_estimators=np.random.randint(1000,1200), n_jobs=8)
@@ -87,21 +87,21 @@ def overproductionRf(XProd,YProd, XMeta, XSel, XTest, nrOfCls = 10, folder = "da
         YCaProduction, YCaMeta, YCaSel, YCaTest = trainClsForMeta(XProd, YProd, XMeta, XSel, XTest, cls)
         #save in file
         if(not os.path.isdir(folder + "classifiers/"+cls.name1)): os.makedirs(folder + "classifiers/"+cls.name1)
-        np.savetxt(folder + "classifiers/"+cls.name1+"/YCaProd.csv", YCaProduction, delimiter="\n")
+        # np.savetxt(folder + "classifiers/"+cls.name1+"/YCaProd.csv", YCaProduction, delimiter="\n")
         np.savetxt(folder + "classifiers/"+cls.name1+"/YCaMeta.csv", YCaMeta, delimiter="\n")
         np.savetxt(folder + "classifiers/"+cls.name1+"/YCaSel.csv", YCaSel, delimiter="\n")
         np.savetxt(folder + "classifiers/"+cls.name1+"/YCaTest.csv", YCaTest, delimiter="\n")
 
-def overproductionELM(XProd,YProd, XMeta, XSel, XTest, nrOfCls = 100, folder = "data/dataForMeta/"):
+def overproductionELM(XProd,YProd, XMeta, XSel, XTest, nrOfCls = 5, folder = "data/dataForMeta/"):
     #produces lot of cls for problem
     for i in range(nrOfCls):
-        cls = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = np.random.randint(100,500), activation_func = 'multiquadric', alpha=1))
+        cls = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = np.random.randint(20,500), activation_func = 'multiquadric', alpha=1))
         cls.name1 = "elm_"+str(cls.hidden_layer.n_hidden)
-        YCaProduction, YCaMeta, YCaSel, YCaTest = trainClsForMeta(XProd, YProd, XMeta, XSel, XTest, cls)
         print("Producing " + cls.name1)
+        YCaProduction, YCaMeta, YCaSel, YCaTest = trainClsForMeta(XProd, YProd, XMeta, XSel, XTest, cls)
         #save in file
         if(not os.path.isdir(folder + "classifiers/"+cls.name1)): os.makedirs(folder + "classifiers/"+cls.name1)
-        np.savetxt(folder + "classifiers/"+cls.name1+"/YCaProd.csv", YCaProduction, delimiter="\n")
+        # np.savetxt(folder + "classifiers/"+cls.name1+"/YCaProd.csv", YCaProduction, delimiter="\n")
         np.savetxt(folder + "classifiers/"+cls.name1+"/YCaMeta.csv", YCaMeta, delimiter="\n")
         np.savetxt(folder + "classifiers/"+cls.name1+"/YCaSel.csv", YCaSel, delimiter="\n")
         np.savetxt(folder + "classifiers/"+cls.name1+"/YCaTest.csv", YCaTest, delimiter="\n")
@@ -110,6 +110,7 @@ def overproductionProcess(folder):
     # divideDataForMeta(X, Y) #it divides data into Production, Meta and Selection
     XMeta, YMeta, XSel, YSel, XTest, YTest = readForMeta2(folder)
     overproductionELM(XProd,YProd, XMeta, XSel, XTest, folder=folder) #we generate classifiers and use them for responses
+    overproductionRf(XProd,YProd, XMeta, XSel, XTest, folder=folder)
 def readForMeta2(folder):
     #reads for meta, when we already have overproduction
     print("we are reading in folder %s" %folder)
@@ -201,7 +202,15 @@ def wholeMetaProcedure2(folder = "data/dataForMeta/ostanek/"):
     YCaSel = readClsResponse("Sel", folder = folder)
     YCaTest = readClsResponse("Test", folder = folder)
     responseTest = metaDes.predict_proba(XTest, YCaTest, XSel, YSel, YCaSel)
-    np.savetxt(folder + "MetaDesResponse_"+metaDes.mode+".csv",responseTest, delimiter=",")
+    name = "hC"+str(metaDes.hC)+\
+                                       "_K"+str(metaDes.K)+\
+                                       "_Kp"+str(metaDes.Kp)+\
+                                       "_mode"+metaDes.mode+\
+                                       "_competence"+str(metaDes.competenceTresshold)+\
+                                       "_cls"+metaDes.metaCls.name+\
+                                        "_metric"+metaDes.metric+\
+                                        "_metaClsMode"+metaDes.metaClsMode
+    np.savetxt(folder + "MetaDesResponse_"+name+".csv",responseTest, delimiter=",")
     responseTest = responseTest[:,1]
 
     plotClassifiers(folder, "MetaDesResponse_"+metaDes.mode+".csv")
@@ -212,7 +221,7 @@ def plotClassifiers(folder = "data/dataForMeta/", clsResponse = "MetaDesResponse
     YMetaDes = np.loadtxt(folder+clsResponse, delimiter=",")[:,1]
     YTest = np.loadtxt(folder + "Ytest.csv", delimiter="\n")
     YCaTest = readClsResponse("Test", folder = folder)
-    handles.append(dviganjeDecilov(YTest, YMetaDes, "MetaDes", linewidth=4)[1])
+    # handles.append(dviganjeDecilov(YTest, YMetaDes, "MetaDes", linewidth=4)[1])
     clsNames = os.listdir(folder+"classifiers/")
     for i, YCa in enumerate(YCaTest.T):
         print(clsNames[i],)
@@ -244,7 +253,7 @@ def trainClsForMeta(XProduction, YProduction,XMeta, XSel, XTest, cls):
 
 if __name__ == "__main__":
     folder = "data/dataForMeta/ostanek/"
-    overproductionProcess(folder)
+    # overproductionProcess(folder)
     # wholeMetaProcedure2(folder)
-    # plotClassifiers(folder = "data/dataForMeta/", clsResponse="MetaDesResponse_weighted.csv")
+    plotClassifiers(folder = folder, clsResponse="MetaDesResponse_weighted.csv")
 
