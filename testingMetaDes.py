@@ -214,6 +214,52 @@ def wholeMetaProcedure2(folder = "data/dataForMeta/ostanek/"):
     responseTest = responseTest[:,1]
 
     plotClassifiers(folder, "MetaDesResponse_"+metaDes.mode+".csv")
+
+def wholeMetaProcedureBackTest(folder = "data/dataForMeta/ostanek/"):
+    #we modify this function a little bit, preparing it for work with OstanekTrain
+    # divideDataForMeta(X, Y) #it divides data into Production, Meta and Selection
+    XMeta, YMeta, XSel, YSel, XTest, YTest = readForMeta2(folder = folder)
+    XTest = np.loadtxt("//./Z:/Podatki/Prediction datasets/fullTestFeatures.csv", delimiter=",")
+    # overproductionRf(XProd,YProd, XMeta, XSel, XTest) #we generate classifiers and use them for responses
+    # nb = GaussianNB()#meta classifier for metaDes
+    # rf = RandomForestClassifier(n_estimators=100)
+    # elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 20, activation_func = 'multiquadric', alpha=1))
+
+
+    # elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 20, activation_func = 'multiquadric', alpha=1))
+    # sm = softMaxSklearn()
+    cls = LogisticRegression()
+
+
+    hc = 1.0
+    Kp = K = 300
+
+    YCaMeta = readClsResponse("Meta", folder=folder) #we read all classifications for meta dataset
+
+    metaDes = MetaDES(hc,K, Kp, cls, competenceTresshold=0.5, mode="weighted", metaClsMode="combined",
+                      nrOfClassifiers = YCaMeta.shape[1], normalizeMetaFeat=True)
+
+    metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
+    # rf.name = "RandomForest"
+    # metaDes.nrOfClassifiers = 11
+    # metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
+    # metaDes.loadMetaCls()
+
+    YCaSel = readClsResponse("Sel", folder = folder)
+    YCaTest = readClsResponse("Test", folder = folder+"backtest/")
+    responseTest = metaDes.predict_proba(XTest, YCaTest, XSel, YSel, YCaSel)
+    name = "hC"+str(metaDes.hC)+\
+                                       "_K"+str(metaDes.K)+\
+                                       "_Kp"+str(metaDes.Kp)+\
+                                       "_mode"+metaDes.mode+\
+                                       "_competence"+str(metaDes.competenceTresshold)+\
+                                       "_cls"+metaDes.metaCls.name+\
+                                        "_metric"+metaDes.metric+\
+                                        "_metaClsMode"+metaDes.metaClsMode
+    np.savetxt(folder + "MetaDesResponseFulltest_"+name+".csv",responseTest, delimiter=",")
+    responseTest = responseTest[:,1]
+
+    # plotClassifiers(folder, "MetaDesResponse_"+metaDes.mode+".csv")
 def plotClassifiers(folder = "data/dataForMeta/", clsResponse = "MetaDesResponse.csv"):
     #plots all classifiers, that are stored in data/dataForMeta/classifiers, so we can compare precision with respect to
     #meta classifier
@@ -254,6 +300,6 @@ def trainClsForMeta(XProduction, YProduction,XMeta, XSel, XTest, cls):
 if __name__ == "__main__":
     folder = "data/dataForMeta/ostanek/"
     # overproductionProcess(folder)
-    # wholeMetaProcedure2(folder)
-    plotClassifiers(folder = folder, clsResponse="MetaDesResponse_weighted.csv")
+    wholeMetaProcedureBackTest(folder)
+    # plotClassifiers(folder = folder, clsResponse="MetaDesResponse_weighted.csv")
 
