@@ -40,9 +40,9 @@ def findParameters(folder = "data/dataForMeta/ostanek/"):
     lr = LogisticRegression()
     lr.name= "lr"
 
-    metaClassifiers = [lr, rf, elm]
+    metaClassifiers = [lr, elm]
     hCs = [1.0, 0.5]
-    nrNeigh = [300]#, 1000, 3000]
+    nrNeigh = [1000]#, 1000, 3000]
     modes = ["weighted"]
     metrics = ["l2", "chebyshev"]#BallTree.valid_metrics
     metaClsModes = ["combined"]
