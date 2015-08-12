@@ -174,10 +174,13 @@ def pickleListAppend2(object, file):
 def deleteFile(file):
     if(os.path.exists(file)): os.remove(file)
 
-def shraniModel(cls, file):
-    if(not os.path.exists("/".join(file.split("/")[:-1]))): os.makedirs("/".join(file.split("/")[:-1]))
-    joblib.dump(cls,file)
-    print("shranil v ", file)
+def shraniModel(cls, folder):
+    # folder = "/".join(file.split("/")[:-1])+"/"
+    # fname = file.split("/")[-1]
+
+    if(not os.path.exists(folder)): os.makedirs(folder)
+    joblib.dump(cls,folder+"model.p")
+    print("shranil v ", folder)
 
 def writeModelPreds(modelFile, modelToWrite, dataCsv, stp = 10000, hasTicker = True, appendTicker = False, transformers = None):
     #za backtest

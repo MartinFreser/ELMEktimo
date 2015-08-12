@@ -11,6 +11,7 @@ from sklearn.naive_bayes import GaussianNB
 from MetaDES.HelpersMeta import dviganjeDecilov
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LogisticRegression
+import traceback
 
 from Helpers import pickleListAppend2
 import pickle
@@ -41,7 +42,7 @@ def findParameters(folder = "data/dataForMeta/ostanek/"):
 
     metaClassifiers = [lr, rf, elm]
     hCs = [1.0, 0.5]
-    nrNeigh = [10000]#, 1000, 3000]
+    nrNeigh = [300]#, 1000, 3000]
     modes = ["weighted"]
     metrics = ["l2", "chebyshev"]#BallTree.valid_metrics
     metaClsModes = ["combined"]
@@ -86,17 +87,19 @@ def findParameters(folder = "data/dataForMeta/ostanek/"):
 
                                     nrOfTrials += 1
                                     print("Fitting %d/%d trial" %(nrOfTrials,allTrials))
+
                                     metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
-                                    Helpers.shraniModel(metaDes,folder+"models/"+name+"/"+name) #we save fitted model
+
                                     responseTest = metaDes.predict_proba(XTest, YCaTest, XSel, YSel, YCaSel)[:,1]
 
 
                                     plotClassifiersAndSaveResult(YTest,YCaTest, responseTest, name, folder=folder) #we save figure and save results
+                                    Helpers.shraniModel(metaDes,folder+"models/"+name+"/") #we save fitted model
                     except Exception as e:
                         allTrials -= 1
                         with open(folder+"error.log", "a") as fw:
                             fw.write("We were executing "+name+"\n")
-                            fw.write(str(e)+"\n\n\n***************************************")
+                            fw.write(str(traceback.format_exc())+"\n\n\n***************************************")
                         print(str(e))
 
 
