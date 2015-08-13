@@ -1,10 +1,10 @@
 __author__ = 'Martin'
 import Helpers
 import numpy as np
-# from ELMimplementacije.PythonELM.elm import GenELMClassifier
-# from ELMimplementacije.PythonELM.random_layer import RandomLayer
-from ELMImplementacije.PythonELM.elm import GenELMClassifier
-from ELMImplementacije.PythonELM.random_layer import RandomLayer
+from ELMimplementacije.PythonELM.elm import GenELMClassifier
+from ELMimplementacije.PythonELM.random_layer import RandomLayer
+# from ELMImplementacije.PythonELM.elm import GenELMClassifier
+# from ELMImplementacije.PythonELM.random_layer import RandomLayer
 import os
 from MetaDES.MetaDES import MetaDES
 from sklearn.tree import DecisionTreeClassifier
@@ -115,6 +115,7 @@ def readForMeta2(folder):
     #reads for meta, when we already have overproduction
     print("we are reading in folder %s" %folder)
     XMeta = np.loadtxt(folder + "XMeta.csv", delimiter=",")
+    print(np.max(XMeta))
     YMeta = np.loadtxt(folder + "YMeta.csv", delimiter=",")
     XSel = np.loadtxt(folder + "XSel.csv", delimiter=",")
     YSel = np.loadtxt(folder + "YSel.csv", delimiter=",")
