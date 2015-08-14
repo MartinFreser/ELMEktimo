@@ -118,11 +118,11 @@ def rezreziFileProces():
     folder = "data/dataForMeta/ostanek/"
     # generirajIndexeZaOstanek(folder, nrOfInstances=300000) #se izvede samo enkrat, da generiramo vse indexe
 
-    bigFileX = "data/dataForMeta/ostanek/ostanekTrainFeatures.csv"
+    bigFileX = "data/dataForMeta/ostanek/ostanekTrainFeaturesBrezCudni.csv"
     bigFileY = "data/dataForMeta/ostanek/ostanekTrainResponse.csv"
-    # razreziFileZaMetaX()
+    razreziFileZaMetaX()
     # razreziY(bigFileY)
-    razreziClassifierje()
+    # razreziClassifierje()
 
 def fullTestProcess(folder = "data/dataForMeta/ostanek/", clsFile = "data/dataForMeta/models/metaDes/metaDes.p",
                     XTestFile = "data/dataForMeta/ostanek/XTest.csv",
