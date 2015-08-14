@@ -42,7 +42,7 @@ def findParameters(folder = "data/dataForMeta/ostanek/"):
 
     metaClassifiers = [lr, elm]
     hCs = [1.0, 0.5]
-    nrNeigh = [1000]#, 1000, 3000]
+    nrNeigh = [305]#, 1000, 3000]
     modes = ["weighted"]
     metrics = ["l2", "chebyshev"]#BallTree.valid_metrics
     metaClsModes = ["combined"]
@@ -57,6 +57,7 @@ def findParameters(folder = "data/dataForMeta/ostanek/"):
     YCaTest = readClsResponse("Test", folder = folder)
 
     nrOfTrials = 0
+    print("we are testing for %d neighbours" %nrNeigh[0])
     allTrials = len(nrNeigh)*len(hCs)*len(modes)*len(metrics)*len(metaClassifiers)*len(metaClsModes)*len(normalizeMetaFeatures)
     print("We will have %d trials" %allTrials)
     for nrN in nrNeigh:

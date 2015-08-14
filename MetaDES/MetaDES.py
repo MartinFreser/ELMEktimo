@@ -47,6 +47,7 @@ class MetaDES():
         self.printing = printing
         self.metaClsMode = metaClsMode #"one" is if we only use one metaCls, and "combined" is, if we use own meta classifier for every classifier
         self.normalizeMetaFeat = normalizeMetaFeat
+        self.regionsFitted = False #if we call predict_proba() more times, we only have to fit region once
     def fit(self, XMeta, YMeta, YCaMeta, folder = "data/dataForMeta/"): #X ... features, y... trueValue, yC ... values predicted by classifier
         self.nrOfClassifiers = YCaMeta.shape[1]
         wholeTime, timeForRegion = 0,0
@@ -138,10 +139,14 @@ class MetaDES():
         start = time.time()
         response = []
 
-        nearestNeigbourRegion = NearestNeighbors(n_neighbors=self.K, metric=self.metric)
-        nearestNeigbourRegion.fit(XSel)
-        nearestNeigbourOutputRegion = NearestNeighbors(n_neighbors=self.Kp, metric=self.metric)
-        nearestNeigbourOutputRegion.fit(np.round(YCaSel))
+        if(not self.regionsFitted):
+            nearestNeigbourRegion = NearestNeighbors(n_neighbors=self.K, metric=self.metric)
+            nearestNeigbourRegion.fit(XSel)
+            self.nearestNeigbourRegion = nearestNeigbourRegion
+            nearestNeigbourOutputRegion = NearestNeighbors(n_neighbors=self.Kp, metric=self.metric)
+            nearestNeigbourOutputRegion.fit(np.round(YCaSel))
+            self.nearestNeigbourOutputRegion = nearestNeigbourOutputRegion
+            self.regionsFitted = True
 
         for i, x in enumerate(XTest):
             if(i%1000 == 0): print("Test examples covered: %d/%d" %(i, len(XTest)))
@@ -149,14 +154,14 @@ class MetaDES():
 
             start2 = time.time()
             #idxsReg = findRegion(XSel, x, self.K, method='normalRegion')
-            idxsReg = nearestNeigbourRegion.kneighbors(x, n_neighbors=self.K, return_distance=False)[0]
+            idxsReg = self.nearestNeigbourRegion.kneighbors(x, n_neighbors=self.K, return_distance=False)[0]
             # idxsReg = range(self.K)
             timeForRegion+= (time.time() - start2)
             reg["X"], reg["Y"] = XSel[idxsReg], YSel[idxsReg]
 
             start2 = time.time()
             # idxsOP = findRegion(np.round(YCaSel), np.round(YCaTest[i]), self.K, method='outputProfileRegion')
-            idxsOP = nearestNeigbourOutputRegion.kneighbors(np.round(YCaTest[i]), n_neighbors=self.Kp, return_distance=False)[0]
+            idxsOP = self.nearestNeigbourOutputRegion.kneighbors(np.round(YCaTest[i]), n_neighbors=self.Kp, return_distance=False)[0]
             # idxsOP = range(self.Kp)
             timeForRegion+= (time.time() - start2)
             opReg["X"], opReg["Y"] = XSel[idxsOP], YSel[idxsOP]

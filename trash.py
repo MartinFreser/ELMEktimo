@@ -9,7 +9,7 @@ def maliKos():
                 i+=1
                 content = np.array(line.replace("\"", "").split(",")[2:]).astype(float)
                 content = ",".join(map(str,list(content)))
-                f2.write(content)
+                f2.write(content+"\n")
                 if(i%100000 == 0): print("%d/%d" %(i, 1000000))
         print("we wrote %d lines" %i)
 

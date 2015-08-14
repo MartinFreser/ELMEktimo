@@ -9,3 +9,5 @@ if __name__ == "__main__":
     MetaDES.MetaDesParameterFinding.findParameters()
     # MetaDES.MetaDesParameterFinding.loadResults(sortMode="90percentile")
     # print("hi")
+
+    # X = np.loadtxt("data/dataForMeta/ostanek/fullTestFeatures.csv")

@@ -219,7 +219,7 @@ def wholeMetaProcedureBackTest(folder = "data/dataForMeta/ostanek/"):
     #we modify this function a little bit, preparing it for work with OstanekTrain
     # divideDataForMeta(X, Y) #it divides data into Production, Meta and Selection
     XMeta, YMeta, XSel, YSel, XTest, YTest = readForMeta2(folder = folder)
-    XTest = np.loadtxt(folder + "fullTestFeatures.csv", delimiter=",")
+    # XTest = np.loadtxt(folder + "fullTestFeatures.csv", delimiter=",")
     # overproductionRf(XProd,YProd, XMeta, XSel, XTest) #we generate classifiers and use them for responses
     # nb = GaussianNB()#meta classifier for metaDes
     # rf = RandomForestClassifier(n_estimators=100)
@@ -229,6 +229,7 @@ def wholeMetaProcedureBackTest(folder = "data/dataForMeta/ostanek/"):
     # elm = GenELMClassifier(hidden_layer = RandomLayer(n_hidden = 20, activation_func = 'multiquadric', alpha=1))
     # sm = softMaxSklearn()
     cls = LogisticRegression()
+    cls.name = "lr"
 
 
     hc = 1.0
@@ -241,16 +242,15 @@ def wholeMetaProcedureBackTest(folder = "data/dataForMeta/ostanek/"):
     metaDes = MetaDES(hc,K, Kp, cls, competenceTresshold=0.5, mode="weighted", metaClsMode="combined",
                       nrOfClassifiers = YCaMeta.shape[1], normalizeMetaFeat=True)
 
-    metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
+    # metaDes.fit(XMeta, YMeta, YCaMeta, folder = folder)
     # rf.name = "RandomForest"
     # metaDes.nrOfClassifiers = 11
-    # metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
+    metaDes.fitWithAlreadySaved(saveModel = False, folder = folder) #if we already computed features
     # metaDes.loadMetaCls()
 
 
     YCaSel = readClsResponseDeterminedCls("Sel", folder = folder, clsList=clsList)
     YCaTest = readClsResponseDeterminedCls("Test", folder = folder+"backtest/", clsList=clsList)
-    responseTest = metaDes.predict_proba(XTest, YCaTest, XSel, YSel, YCaSel)
     name = "hC"+str(metaDes.hC)+\
                                        "_K"+str(metaDes.K)+\
                                        "_Kp"+str(metaDes.Kp)+\
@@ -259,8 +259,9 @@ def wholeMetaProcedureBackTest(folder = "data/dataForMeta/ostanek/"):
                                        "_cls"+metaDes.metaCls.name+\
                                         "_metric"+metaDes.metric+\
                                         "_metaClsMode"+metaDes.metaClsMode
-    np.savetxt(folder + "MetaDesResponseFulltest_"+name+".csv",responseTest, delimiter=",")
-    responseTest = responseTest[:,1]
+
+    writeModelPreds(metaDes,folder + "MetaDesResponseFulltest_"+name+".csv", folder + "fullTestFeatures2.csv",
+                    XSel, YSel, YCaSel, YCaTest, stp=10000)
 
     # plotClassifiers(folder, "MetaDesResponse_"+metaDes.mode+".csv")
 def plotClassifiers(folder = "data/dataForMeta/", clsResponse = "MetaDesResponse.csv"):
@@ -307,6 +308,52 @@ def trainClsForMeta(XProduction, YProduction,XMeta, XSel, XTest, cls):
     YCaTest = cls.predict_proba(XTest)[:,1]
 
     return YCaProduction, YCaMeta, YCaSel, YCaTest
+
+def writeModelPreds(cls, modelToWrite, dataCsv,XSel, YSel, YCaSel, YCaTest,
+                    stp = 10000, hasTicker = True, appendTicker = False):
+    #za backtest
+    #Predict fullTest
+    # cls = joblib.load(modelFile)
+    # rnn = joblib.load("transformers/RemoveNonRanked/RemoveNonRanked.p")
+    test_x = []
+    tickers = []
+    lines = 0
+    with open(modelToWrite,"w") as fw:
+        with open(dataCsv,"r") as f:
+            f.readline()#dummy read for header
+
+            i=0
+            for line in f:
+                lines+=1
+                l = line.replace("\"", "").strip().split(",")[2:] if hasTicker else line.replace("\"", "").strip().split(",")
+                if hasTicker: tickers.append(line.replace("\"", "").strip().split(",")[:2])
+                test_x.append(l)#izbrisemo ticker in datum
+                if(len(test_x)>=stp):
+                    print (i,976800/stp)
+                    i+=1
+                    XTest = np.array(test_x).astype(float)
+                    YCaTestCut = YCaTest[(i-1)*stp:(i)*stp]
+                    print("sizes are %d and %d" %(len(XTest), len(YCaTestCut)))
+                    responseTest = cls.predict_proba(XTest, YCaTestCut, XSel, YSel, YCaSel)
+
+                    preds = responseTest[:,1]
+                    if hasTicker and appendTicker:
+                        [fw.write("%s,%s,%s\n" %(tick[0], tick[1], str(p))) for p, tick in zip(preds, tickers)]
+                    else:
+                        [fw.write("%s\n" %str(p)) for p in preds]
+                    test_x = []
+                    tickers = []
+        if(len(test_x) != 0):
+            XTest = np.array(test_x).astype(float)
+
+            responseTest = cls.predict_proba(XTest, YCaTest[(i-1)*stp:(i)*stp], XSel, YSel, YCaSel)
+
+            preds = responseTest[:,1]
+            if hasTicker and appendTicker:
+                [fw.write("%s,%s,%s\n" %(tick[0], tick[1], str(p))) for p, tick in zip(preds, tickers)]
+            else:
+                [fw.write("%s\n" %str(p)) for p in preds]
+    print("we had %d lines" %lines)
 
 if __name__ == "__main__":
     folder = "data/dataForMeta/ostanek/"
