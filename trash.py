@@ -13,6 +13,15 @@ def maliKos():
                 if(i%100000 == 0): print("%d/%d" %(i, 1000000))
         print("we wrote %d lines" %i)
 
+def maloPreberi():
+    with open("data/dataForMeta/ostanek/fullTestBrezCudni.csv") as f:
+        i = 0
 
+        for line in f:
+            print(line)
+            print(len(line.split(",")))
+            # print(max(map(float,line.split(","))))
+            if (i>4): break
+            i+=1
 if __name__ == "__main__":
-    maliKos()
+    maloPreberi()

@@ -187,8 +187,8 @@ class MetaDES():
             # if(i%1000 == 1): print("best competence of some case: %.4f", str(allCls[-1,0]))
             if(len(selection) == 0):
                 selection=allCls[::-1][:2] #we selcted best two classifiers
-                print("we havent found good cls, using best 2 out of bad classifiers, "
-                      "competence of the best is: %.4f" %(selection[0,0]))
+                # print("we havent found good cls, using best 2 out of bad classifiers, "
+                #       "competence of the best is: %.4f" %(selection[0,0]))
             votes = selection[:,2] #YCaTest
             competenceOfClassifiers = selection[:,0] #competence
             votes = np.array(votes)

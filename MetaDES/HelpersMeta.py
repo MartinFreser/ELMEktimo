@@ -48,12 +48,12 @@ def computeMetaFeatures(reg, opReg):
 
     #f5 to be done
 
-    f6 = np.abs(reg["YC"]-reg["Y"])
+    # f6 = np.abs(reg["YC"]-reg["Y"])
     # mean,std = Helpers.meanAndStd(f6)
     # f.append(mean)
     # f.append(std)
 
-    f7 = np.abs(opReg["YC"]-opReg["Y"])
+    # f7 = np.abs(opReg["YC"]-opReg["Y"])
     # mean,std = Helpers.meanAndStd(f7)
     # f.append(mean)
     # f.append(std)

@@ -5,9 +5,9 @@ from sklearn.externals import joblib
 from testingMetaDes import readClsResponse, readForMeta3
 
 def generirajIndexeZaOstanek(folder, nrOfInstances = 100000):
-    idxMeta = set(random.sample(range(300000), nrOfInstances))
-    idxSel = set(random.sample(range(300000, 600000), nrOfInstances))
-    idxTest = set(random.sample(range(600000,900000), nrOfInstances))
+    idxTest = set(random.sample(range(300000), nrOfInstances)) #Na teh podatkih smo delali platt kalibracijo, itak jih ne rabimo, ker testiramo na backtest
+    idxMeta = set(random.sample(range(300000, 600000), nrOfInstances))
+    idxSel = set(random.sample(range(600000,900000), nrOfInstances))
     np.savetxt(folder+"idxMeta.csv",np.sort(np.array(list(idxMeta))), delimiter="\n", fmt = "%d")
     np.savetxt(folder+"idxSel.csv",np.sort(np.array(list(idxSel))), delimiter="\n", fmt = "%d")
     np.savetxt(folder+"idxTest.csv",np.sort(np.array(list(idxTest))), delimiter="\n", fmt = "%d")
@@ -27,9 +27,10 @@ def razreziFileZaMetaX(bigFileX = "data/dataForMeta/ostanek/ostanekTrainFeatures
         for line in f:
             if(i%50000 == 0): print("%d/1000000" %i)
             i+=1
-            if(len(line.split(","))<190):
-                print(line)
-                print("it is something wrong with this line!, this is %d th line" %i)
+            # if(len(line.split(","))<190):
+            #     print(line)
+            #     print("it is something wrong with this line!, this is %d th line" %i)
+            # l = len(line.split(","))
             if i in idxMeta:
                 metaCount+=1
                 fXMeta.write(line) #XMeta
@@ -116,13 +117,14 @@ def razreziClassifierje(folderOfClassifiers = "data/dataForMeta/ostanek/JureClas
 def rezreziFileProces():
     #Metoda doloci indekse za Meta, Selection in Test, katere bomo vzeli iz mnozice ostanekTrain
     folder = "data/dataForMeta/ostanek/"
-    # generirajIndexeZaOstanek(folder, nrOfInstances=300000) #se izvede samo enkrat, da generiramo vse indexe
+    # generirajIndexeZaOstanek(folder, nrOfInstances=20000) #se izvede samo enkrat, da generiramo vse indexe
 
     bigFileX = "data/dataForMeta/ostanek/ostanekTrainFeaturesBrezCudni.csv"
     bigFileY = "data/dataForMeta/ostanek/ostanekTrainResponse.csv"
-    razreziFileZaMetaX()
+    # razreziFileZaMetaX(bigFileX= bigFileX)
     # razreziY(bigFileY)
-    # razreziClassifierje()
+    razreziClassifierje(folderOfClassifiers = "data/dataForMeta/ostanek/JureClassifiers/Podatki/classifiers/",
+                        folderToSaveCuttedCls = "data/dataForMeta/ostanek/classifiers/")
 
 def fullTestProcess(folder = "data/dataForMeta/ostanek/", clsFile = "data/dataForMeta/models/metaDes/metaDes.p",
                     XTestFile = "data/dataForMeta/ostanek/XTest.csv",
