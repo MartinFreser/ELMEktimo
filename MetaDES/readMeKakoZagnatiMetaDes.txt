@@ -7,6 +7,11 @@ Jaz sem uporabljal za XMeta naključnih 20 000 naključnih primerkov iz druge tr
 pa sem vzel celo FullTest množico(da sem lahko napovedal za backtest).
 
 Vse množice morajo imeti header in so v csv formatu, z imeni XMeta.csv, XSel.csv, XTest.csv v mapi data/dataForMeta/ostanek/
+Ime datoteke XTest sem zamenjal z množico FullTestBrezCudni.csv. To specificiramo v metodi wholeMetaProcedureBackTest(), ko kličemo metodo
+writeModelPreds() in sicer moramo specificirati parameter dataCsvXTest = folder + "fullTestFeaturesBrezCudni.csv"
+folder je trenutno nastavljen na data/dataForMeta/ostanek/
+
+Paziti moramo, da so vse mnozice kompatibilne, torej imajo isto stevilo atributov!
 
 2. Responsi klasifikatorjev morajo biti v mapi data/dataForMeta/ostanek/classifiers/imeKlasifikatorja/
 torej mora imeti vsak klasifikator svojo mapo, v kateri morajo biti datoteke: YCaMeta.csv, YCaSel.csv. 
