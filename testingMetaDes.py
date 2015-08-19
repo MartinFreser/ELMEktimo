@@ -276,7 +276,7 @@ def trainClsForMeta(XProduction, YProduction,XMeta, XSel, XTest, cls):
 
     return YCaProduction, YCaMeta, YCaSel, YCaTest
 
-def writeModelPreds(cls, modelToWrite, dataCsv,XSel, YSel, YCaSel, YCaTest,
+def writeModelPreds(cls, modelToWrite, dataCsvXTest,XSel, YSel, YCaSel, YCaTest,
                     stp = 10000, hasTicker = True, appendTicker = False):
     #za backtest
     #Predict fullTest
@@ -287,7 +287,7 @@ def writeModelPreds(cls, modelToWrite, dataCsv,XSel, YSel, YCaSel, YCaTest,
     tickers = []
     lines = 0
     with open(modelToWrite,"w") as fw:
-        with open(dataCsv,"r") as f:
+        with open(dataCsvXTest,"r") as f:
             f.readline()#dummy read for header
 
             i=0
