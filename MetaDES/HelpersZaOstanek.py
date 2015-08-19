@@ -4,6 +4,9 @@ import MetaDES.HelpersMeta as hm
 from sklearn.externals import joblib
 from testingMetaDes import readClsResponse, readForMeta3
 
+#Datoteka implementira metode ki pomagajo pri MetaDes z ostankom..
+
+
 def generirajIndexeZaOstanek(folder, nrOfInstances = 100000):
     idxTest = set(random.sample(range(300000), nrOfInstances)) #Na teh podatkih smo delali platt kalibracijo, itak jih ne rabimo, ker testiramo na backtest
     idxMeta = set(random.sample(range(300000, 600000), nrOfInstances))
